@@ -4,11 +4,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#fbfbfd" />
-    <title>Satta — как будет работать чат для метрик</title>
-    <meta
-      name="description"
-      content="Презентация Satta: как пользовательский чат для бизнеса отвечает на вопросы о метриках."
-    />
+    <title>Satta</title>
+    <meta name="description" content="Satta — чат для бизнес-метрик." />
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <script>
@@ -30,439 +27,100 @@
     </script>
   </head>
   <body>
-    <a class="skip" href="#tab-overview">К содержимому</a>
-
     <header class="site-header">
       <div class="site-header__inner">
-        <a class="logo" href="#" data-tab-trigger="overview" aria-label="Satta">
-          <img src="assets/mark.svg" alt="" width="26" height="26" />
-          <span>Satta</span>
-        </a>
-        <nav class="site-nav" aria-label="Разделы презентации">
-          <a href="#" data-tab-trigger="overview">Замысел</a>
+        <a class="logo" href="#" data-tab-trigger="overview">Satta</a>
+        <nav class="site-nav" aria-label="Разделы">
+          <a href="#" data-tab-trigger="overview">Идея</a>
           <a href="#" data-tab-trigger="flow">Процесс</a>
-          <a href="#" data-tab-trigger="chat">Диалог</a>
-          <a href="#" data-tab-trigger="audience">Роли</a>
+          <a href="#" data-tab-trigger="chat">Чат</a>
           <a href="#" data-tab-trigger="scenarios">Сценарии</a>
           <a href="#" data-tab-trigger="contact">Связь</a>
         </nav>
-        <div class="site-header__actions">
-          <button class="theme-toggle" type="button" aria-label="Переключить тему">
-            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
-              <path
-                fill="none"
-                stroke="currentColor"
-                stroke-width="1.7"
-                stroke-linecap="round"
-                d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21"
-              />
-            </svg>
-            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-              <path
-                fill="currentColor"
-                d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z"
-              />
-            </svg>
-          </button>
-        </div>
+        <button class="theme-toggle" type="button" aria-label="Тема">
+          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
+            <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21" />
+          </svg>
+          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z" />
+          </svg>
+        </button>
       </div>
     </header>
 
-    <main>
-      <section class="tabs-shell" id="content" aria-label="Презентация Satta">
-        <div class="wrap page-intro">
-          <p class="page-badge">Презентация продукта</p>
-          <h1 class="page-title">Satta</h1>
-          <p class="page-subtitle">
-            Как будет работать пользовательский чат для бизнеса и анализа метрик
-          </p>
-        </div>
+    <main class="main">
+      <div class="wrap intro">
+        <p class="intro__label">Презентация</p>
+        <h1>Чат для бизнес-метрик</h1>
+      </div>
 
-        <div class="tabs-shell__sticky">
-          <div class="wrap">
-            <div class="tabs" role="tablist" aria-label="Вкладки презентации">
-              <button
-                class="tabs__btn is-active"
-                type="button"
-                role="tab"
-                id="tab-overview"
-                aria-selected="true"
-                aria-controls="panel-overview"
-                data-tab="overview"
-              >
-                Замысел
-              </button>
-              <button
-                class="tabs__btn"
-                type="button"
-                role="tab"
-                id="tab-flow"
-                aria-selected="false"
-                aria-controls="panel-flow"
-                data-tab="flow"
-                tabindex="-1"
-              >
-                Процесс
-              </button>
-              <button
-                class="tabs__btn"
-                type="button"
-                role="tab"
-                id="tab-chat"
-                aria-selected="false"
-                aria-controls="panel-chat"
-                data-tab="chat"
-                tabindex="-1"
-              >
-                Диалог
-              </button>
-              <button
-                class="tabs__btn"
-                type="button"
-                role="tab"
-                id="tab-audience"
-                aria-selected="false"
-                aria-controls="panel-audience"
-                data-tab="audience"
-                tabindex="-1"
-              >
-                Роли
-              </button>
-              <button
-                class="tabs__btn"
-                type="button"
-                role="tab"
-                id="tab-scenarios"
-                aria-selected="false"
-                aria-controls="panel-scenarios"
-                data-tab="scenarios"
-                tabindex="-1"
-              >
-                Сценарии
-              </button>
-              <button
-                class="tabs__btn"
-                type="button"
-                role="tab"
-                id="tab-contact"
-                aria-selected="false"
-                aria-controls="panel-contact"
-                data-tab="contact"
-                tabindex="-1"
-              >
-                Связь
-              </button>
-            </div>
+      <div class="wrap tabs-wrap">
+        <div class="tabs" role="tablist">
+          <button class="tabs__btn is-active" type="button" role="tab" data-tab="overview" aria-selected="true">Идея</button>
+          <button class="tabs__btn" type="button" role="tab" data-tab="flow" tabindex="-1">Процесс</button>
+          <button class="tabs__btn" type="button" role="tab" data-tab="chat" tabindex="-1">Чат</button>
+          <button class="tabs__btn" type="button" role="tab" data-tab="scenarios" tabindex="-1">Сценарии</button>
+          <button class="tabs__btn" type="button" role="tab" data-tab="contact" tabindex="-1">Связь</button>
+        </div>
+      </div>
+
+      <div class="wrap panels">
+        <section class="panel is-active" data-panel="overview" role="tabpanel">
+          <h2>Вопрос в чате — ответ с цифрой</h2>
+          <p class="panel__lead">Satta показывает, как это будет работать.</p>
+          <ul class="tiles">
+            <li>Спросили</li>
+            <li>Поняли метрику</li>
+            <li>Ответили</li>
+          </ul>
+        </section>
+
+        <section class="panel" data-panel="flow" role="tabpanel" hidden>
+          <h2>Шесть шагов</h2>
+          <ol class="flow-min">
+            <li>Вопрос</li>
+            <li>Смысл запроса</li>
+            <li>Проверка</li>
+            <li>Расчёт</li>
+            <li>Ответ</li>
+            <li>Уточнение</li>
+          </ol>
+        </section>
+
+        <section class="panel" data-panel="chat" role="tabpanel" hidden>
+          <h2>Диалог</h2>
+          <div class="chat">
+            <p class="chat__u">Какой ЭК по портфелю?</p>
+            <p class="chat__b"><strong>12,4 млрд ₽</strong> · сегодня</p>
+            <p class="chat__u">Почему вырос?</p>
+            <p class="chat__b"><strong>+8,2%</strong> · объём и микс</p>
           </div>
-        </div>
+        </section>
 
-        <div class="wrap tab-panels">
-          <article
-            class="tab-panel is-active"
-            role="tabpanel"
-            id="panel-overview"
-            aria-labelledby="tab-overview"
-            data-panel="overview"
-          >
-            <header class="panel-head">
-              <h2>Что показывает этот сайт</h2>
-              <p>
-                Это не готовый продукт, а <strong>макет будущей работы</strong>: как сотрудник
-                задаёт вопрос в чате и как Satta отвечает по метрикам компании — экономический
-                капитал, портфели, периоды, сценарии, факторы изменений.
-              </p>
-            </header>
-            <div class="value-grid">
-              <div class="value-card">
-                <h3>Вход</h3>
-                <p>Обычная фраза в чате: «какой ЭК», «почему вырос», «сравни портфели».</p>
-              </div>
-              <div class="value-card">
-                <h3>Обработка</h3>
-                <p>
-                  Система понимает метрику и контекст, проверяет сопоставимость, считает по
-                  согласованным правилам.
-                </p>
-              </div>
-              <div class="value-card">
-                <h3>Выход</h3>
-                <p>Ответ в чате: цифра, период, срез — и при необходимости объяснение и факторы.</p>
-              </div>
-            </div>
-            <p class="panel-note">
-              Ниже по вкладкам — пошаговый процесс, пример диалога и таблица типовых сценариев
-              (по модели метрик и вопросов пользователя).
-            </p>
-          </article>
+        <section class="panel" data-panel="scenarios" role="tabpanel" hidden>
+          <h2>Главные сценарии</h2>
+          <ul class="lines">
+            <li><span>Значение</span><span>«Какой ЭК сейчас?»</span></li>
+            <li><span>Сравнение</span><span>«Как изменился за месяц?»</span></li>
+            <li><span>Причина</span><span>«Почему вырос?»</span></li>
+            <li><span>Факторы</span><span>«Что повлияло сильнее?»</span></li>
+            <li><span>Сигнал</span><span>«Есть аномалия?»</span></li>
+          </ul>
+        </section>
 
-          <article
-            class="tab-panel"
-            role="tabpanel"
-            id="panel-flow"
-            aria-labelledby="tab-flow"
-            data-panel="flow"
-            hidden
-          >
-            <header class="panel-head">
-              <h2>Процесс работы (как будет устроено)</h2>
-              <p>Цепочка от сообщения пользователя до ответа в чате.</p>
-            </header>
-            <ol class="flow" role="list">
-              <li class="flow__step">
-                <span class="flow__num">1</span>
-                <div>
-                  <h3>Вопрос в чате</h3>
-                  <p>Пользователь пишет без формул и отчётов — как коллеге.</p>
-                </div>
-              </li>
-              <li class="flow__step">
-                <span class="flow__num">2</span>
-                <div>
-                  <h3>Понимание запроса</h3>
-                  <p>
-                    Определяются метрика (например, ЭК), портфель, период, сценарий, тип
-                    действия: значение, сравнение, объяснение.
-                  </p>
-                </div>
-              </li>
-              <li class="flow__step">
-                <span class="flow__num">3</span>
-                <div>
-                  <h3>Проверка условий</h3>
-                  <p>
-                    Если нужно сравнение — проверяется, можно ли сопоставлять периоды,
-                    методологию и срезы.
-                  </p>
-                </div>
-              </li>
-              <li class="flow__step">
-                <span class="flow__num">4</span>
-                <div>
-                  <h3>Расчёт</h3>
-                  <p>
-                    Значение, изменение, вклад факторов или динамика — по единым определениям
-                    метрик в компании.
-                  </p>
-                </div>
-              </li>
-              <li class="flow__step">
-                <span class="flow__num">5</span>
-                <div>
-                  <h3>Ответ пользователю</h3>
-                  <p>
-                    Сообщение в чате: число + контекст (дата, портфель, сценарий) + пояснение
-                    при необходимости.
-                  </p>
-                </div>
-              </li>
-              <li class="flow__step">
-                <span class="flow__num">6</span>
-                <div>
-                  <h3>Уточнение в том же диалоге</h3>
-                  <p>
-                    «Разложи по факторам», «сравни с прошлым кварталом», «есть ли аномалия» —
-                    без нового отчёта.
-                  </p>
-                </div>
-              </li>
-            </ol>
-          </article>
-
-          <article
-            class="tab-panel"
-            role="tabpanel"
-            id="panel-chat"
-            aria-labelledby="tab-chat"
-            data-panel="chat"
-            hidden
-          >
-            <header class="panel-head">
-              <h2>Пример будущего диалога</h2>
-              <p>
-                Так пользователь увидит переписку: сначала значение, затем причина изменения.
-              </p>
-            </header>
-            <div class="device device--panel" aria-label="Сценарий диалога">
-              <div class="device__shell">
-                <div class="device__status">
-                  <span>Satta</span>
-                  <span class="device__pill">превью</span>
-                </div>
-                <div class="device__chat">
-                  <div class="msg msg--user">
-                    Какой экономический капитал по портфелю «Корпоративный»?
-                  </div>
-                  <div class="msg msg--bot">
-                    <span class="msg__value">12,4 млрд ₽</span>
-                    <span class="msg__meta"
-                      >на сегодня · портфель Корпоративный · базовый сценарий</span
-                    >
-                  </div>
-                  <div class="msg msg--user">Как изменился за месяц?</div>
-                  <div class="msg msg--bot">
-                    <span class="msg__delta">+8,2%</span> к прошлому месяцу (абсолютно +0,94
-                    млрд ₽).
-                  </div>
-                  <div class="msg msg--user">Почему вырос?</div>
-                  <div class="msg msg--bot">
-                    Основной вклад: объём сделок, смена микса портфеля, рыночные факторы. Могу
-                    показать разбивку по факторам.
-                  </div>
-                </div>
-              </div>
-            </div>
-            <p class="panel-note">Цифры и формулировки здесь — иллюстрация логики ответа.</p>
-          </article>
-
-          <article
-            class="tab-panel"
-            role="tabpanel"
-            id="panel-audience"
-            aria-labelledby="tab-audience"
-            data-panel="audience"
-            hidden
-          >
-            <header class="panel-head">
-              <h2>Кто пользуется чатом</h2>
-              <p>Один интерфейс — разные задачи, одни и те же определения метрик.</p>
-            </header>
-            <ul class="role-grid" role="list">
-              <li>
-                <h3>Руководитель</h3>
-                <p>Быстрый ответ для решения: «сколько сейчас» и «что изменилось».</p>
-              </li>
-              <li>
-                <h3>Финансы и риски</h3>
-                <p>ЭК, портфели, сценарии — с прозрачным контекстом расчёта.</p>
-              </li>
-              <li>
-                <h3>Продукт / продажи</h3>
-                <p>Метрики по направлениям и клиентам в форме диалога.</p>
-              </li>
-              <li>
-                <h3>Аналитик</h3>
-                <p>Меньше однотипных запросов; сложные кейсы — по-прежнему в аналитике.</p>
-              </li>
-            </ul>
-          </article>
-
-          <article
-            class="tab-panel"
-            role="tabpanel"
-            id="panel-scenarios"
-            aria-labelledby="tab-scenarios"
-            data-panel="scenarios"
-            hidden
-          >
-            <header class="panel-head">
-              <h2>Типовые сценарии в чате</h2>
-              <p>Вопрос пользователя → что делает система → что видит пользователь.</p>
-            </header>
-            <div class="scenario-table-wrap">
-              <table class="scenario-table">
-                <thead>
-                  <tr>
-                    <th scope="col">Вопрос (пример)</th>
-                    <th scope="col">Что происходит</th>
-                    <th scope="col">Ответ в чате</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Какой ЭК сейчас?</td>
-                    <td>Запрос текущего значения метрики</td>
-                    <td>Число + дата + портфель / срез</td>
-                  </tr>
-                  <tr>
-                    <td>Как изменился ЭК за месяц?</td>
-                    <td>Сравнение двух периодов</td>
-                    <td>Абсолютное и % изменение</td>
-                  </tr>
-                  <tr>
-                    <td>Почему вырос ЭК?</td>
-                    <td>Объяснение изменения</td>
-                    <td>Текст + ключевые драйверы</td>
-                  </tr>
-                  <tr>
-                    <td>Какие факторы сильнее всего повлияли?</td>
-                    <td>Поиск главных драйверов</td>
-                    <td>Ранжированный список факторов</td>
-                  </tr>
-                  <tr>
-                    <td>Сравни два портфеля</td>
-                    <td>Сопоставление срезов</td>
-                    <td>Сводное сравнение за период</td>
-                  </tr>
-                  <tr>
-                    <td>Как вела себя метрика во времени?</td>
-                    <td>Динамика за интервал</td>
-                    <td>Описание тренда / ряд значений</td>
-                  </tr>
-                  <tr>
-                    <td>Есть ли аномалии?</td>
-                    <td>Поиск выбросов</td>
-                    <td>Да/нет + пояснение</td>
-                  </tr>
-                  <tr>
-                    <td>Можно ли сравнить эти состояния?</td>
-                    <td>Проверка сопоставимости</td>
-                    <td>Да/нет + причины</td>
-                  </tr>
-                  <tr>
-                    <td>Разложи по факторам</td>
-                    <td>Декомпозиция изменения</td>
-                    <td>Вклад каждого фактора</td>
-                  </tr>
-                  <tr>
-                    <td>Что будет при смене сценария?</td>
-                    <td>Анализ сценария</td>
-                    <td>Оценка влияния на метрику</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </article>
-
-          <article
-            class="tab-panel"
-            role="tabpanel"
-            id="panel-contact"
-            aria-labelledby="tab-contact"
-            data-panel="contact"
-            hidden
-          >
-            <header class="panel-head panel-head--center">
-              <h2>Обсудить внедрение</h2>
-              <p>
-                Эта страница — презентация логики. Для пилота и демо на ваших метриках —
-                свяжитесь с командой.
-              </p>
-            </header>
-            <div class="contact-cards">
-              <a class="contact-card" href="mailto:you@example.com">
-                <span class="contact-card__label">Email</span>
-                <span class="contact-card__value">you@example.com</span>
-              </a>
-              <a class="contact-card" href="https://t.me/username">
-                <span class="contact-card__label">Telegram</span>
-                <span class="contact-card__value">@username</span>
-              </a>
-            </div>
-          </article>
-        </div>
-      </section>
+        <section class="panel" data-panel="contact" role="tabpanel" hidden>
+          <h2>Демо</h2>
+          <p class="panel__lead">Обсудить пилот на ваших метриках.</p>
+          <div class="links">
+            <a href="mailto:you@example.com">you@example.com</a>
+            <a href="https://t.me/username">Telegram</a>
+          </div>
+        </section>
+      </div>
     </main>
 
-    <footer class="site-footer">
-      <div class="wrap site-footer__inner">
-        <span class="logo logo--footer">
-          <img src="assets/mark.svg" alt="" width="20" height="20" />
-          Satta
-        </span>
-        <span>Презентация · пользовательский чат для бизнеса и метрик</span>
-      </div>
-    </footer>
+    <footer class="foot">Satta · чат для метрик</footer>
 
     <script src="theme.js"></script>
     <script src="tabs.js"></script>
