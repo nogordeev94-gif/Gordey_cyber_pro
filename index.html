@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#f5f5f7" />
-    <title>Satta — пользовательский чат для бизнеса</title>
+    <meta name="theme-color" content="#fbfbfd" />
+    <title>Satta — чат для бизнеса и метрик</title>
     <meta
       name="description"
-      content="Satta — чат для руководителей и аналитиков: метрики, сравнения и объяснения изменений простым языком."
+      content="Satta — пользовательский чат: метрики, сравнения и объяснения изменений для бизнеса."
     />
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
@@ -30,194 +30,198 @@
     </script>
   </head>
   <body>
-    <a class="skip" href="#slide-1">К содержимому</a>
+    <a class="skip" href="#product">К содержимому</a>
 
-    <header class="nav">
-      <a class="brand" href="#slide-1" aria-label="Satta — на главную">
-        <img src="assets/mark.svg" alt="" width="28" height="28" />
-        <span data-slot="brand-name">Satta</span>
-      </a>
-      <nav class="nav-links" aria-label="Разделы">
-        <a href="#slide-1" data-slide-link>Satta</a>
-        <a href="#slide-2" data-slide-link>Чат</a>
-        <a href="#slide-3" data-slide-link>Для кого</a>
-        <a href="#slide-4" data-slide-link>Возможности</a>
-        <a href="#slide-5" data-slide-link>Примеры</a>
-        <a href="#slide-6" data-slide-link>Контакт</a>
-      </nav>
-      <button class="theme-toggle" type="button" aria-label="Переключить тему">
-        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
-          <path
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.7"
-            stroke-linecap="round"
-            d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.6 5.6l1.1 1.1M17.3 17.3l1.1 1.1M5.6 18.4l1.1-1.1M17.3 6.7l1.1-1.1"
-          />
-        </svg>
-        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-          <path
-            fill="currentColor"
-            d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z"
-          />
-        </svg>
-      </button>
+    <header class="site-header">
+      <div class="site-header__inner">
+        <a class="logo" href="#product" aria-label="Satta">
+          <img src="assets/mark.svg" alt="" width="26" height="26" />
+          <span>Satta</span>
+        </a>
+        <nav class="site-nav" aria-label="Навигация">
+          <a href="#product" data-nav-link>Продукт</a>
+          <a href="#chat" data-nav-link>Чат</a>
+          <a href="#audience" data-nav-link>Для кого</a>
+          <a href="#features" data-nav-link>Возможности</a>
+          <a href="#examples" data-nav-link>Примеры</a>
+        </nav>
+        <div class="site-header__actions">
+          <a class="btn btn-ghost btn-sm" href="#contact">Демо</a>
+          <button class="theme-toggle" type="button" aria-label="Переключить тему">
+            <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
+              <path
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.7"
+                stroke-linecap="round"
+                d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21"
+              />
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                fill="currentColor"
+                d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
     </header>
 
-    <nav class="slide-rail" aria-label="Навигация по слайдам">
-      <a href="#slide-1" data-slide-link aria-label="Satta"><span>1</span></a>
-      <a href="#slide-2" data-slide-link aria-label="Чат"><span>2</span></a>
-      <a href="#slide-3" data-slide-link aria-label="Для кого"><span>3</span></a>
-      <a href="#slide-4" data-slide-link aria-label="Возможности"><span>4</span></a>
-      <a href="#slide-5" data-slide-link aria-label="Примеры"><span>5</span></a>
-      <a href="#slide-6" data-slide-link aria-label="Контакт"><span>6</span></a>
-    </nav>
-
-    <main class="deck" id="main">
-      <section class="slide" id="slide-1" data-slide="1" aria-labelledby="s1-title">
-        <div class="slide-inner slide-inner--center">
-          <p class="slide-label" data-slot="s1-label">Satta</p>
-          <h1 id="s1-title" data-slot="hero-title">
-            Пользовательский чат для бизнеса и&nbsp;анализа метрик
-          </h1>
-          <p class="slide-lede" data-slot="hero-lede">
-            Спросите в чате — получите цифру, сравнение с прошлым периодом и понятное
-            объяснение, что изменилось. Без отчётов на десятки страниц и без ожидания
-            аналитика.
-          </p>
-          <a class="btn btn-primary" href="#slide-2">Как выглядит чат</a>
-        </div>
-      </section>
-
-      <section class="slide slide-muted" id="slide-2" data-slide="2" aria-labelledby="s2-title">
-        <div class="slide-inner">
-          <p class="slide-label" data-slot="s2-label">Пользовательский чат</p>
-          <h2 id="s2-title" data-slot="s2-title">Диалог вместо дашборда</h2>
-          <p class="slide-kicker" data-slot="s2-kicker">
-            Пишете как коллеге — Satta отвечает с контекстом: период, срез, сценарий
-          </p>
-          <div class="chat-demo" aria-label="Пример чата Satta" data-slot="chat-demo">
-            <div class="chat-demo__bar">
-              <span class="chat-demo__dot"></span>
-              <span class="chat-demo__title">Satta</span>
+    <main>
+      <section class="hero" id="product" data-section>
+        <div class="hero__glow" aria-hidden="true"></div>
+        <div class="wrap hero__grid">
+          <div class="hero__copy">
+            <p class="kicker">Пользовательский чат</p>
+            <h1>Метрики бизнеса.<br />Ответ в диалоге.</h1>
+            <p class="lead">
+              <strong>Satta</strong> — чат для руководителей и команд: спросите о показателе,
+              сравните периоды, узнайте, что изменилось и почему. Без очереди к аналитику и
+              без десятков отчётов.
+            </p>
+            <div class="hero__cta">
+              <a class="btn btn-primary" href="#chat">Посмотреть чат</a>
+              <a class="btn btn-secondary" href="#features">Возможности</a>
             </div>
-            <div class="chat-demo__thread">
-              <div class="bubble bubble-user" data-slot="chat-q1">
-                Какой экономический капитал сейчас по портфелю «Корпоративный»?
+          </div>
+          <div class="device" aria-label="Интерфейс Satta">
+            <div class="device__shell">
+              <div class="device__status">
+                <span>Satta</span>
+                <span class="device__pill">онлайн</span>
               </div>
-              <div class="bubble bubble-bot" data-slot="chat-a1">
-                <strong>12,4 млрд ₽</strong> на сегодня. Портфель: Корпоративный. Учтены
-                актуальная методология и базовый сценарий.
-              </div>
-              <div class="bubble bubble-user" data-slot="chat-q2">
-                Почему вырос показатель за месяц?
-              </div>
-              <div class="bubble bubble-bot" data-slot="chat-a2">
-                Рост <strong>+8,2%</strong>: больше объёма сделок, смена структуры портфеля и
-                влияние рынка. Могу разложить по факторам подробнее.
+              <div class="device__chat">
+                <div class="msg msg--user">
+                  Какой экономический капитал по портфелю «Корпоративный»?
+                </div>
+                <div class="msg msg--bot">
+                  <span class="msg__value">12,4 млрд ₽</span>
+                  <span class="msg__meta">сегодня · базовый сценарий · портфель Корпоративный</span>
+                </div>
+                <div class="msg msg--user">Почему вырос за месяц?</div>
+                <div class="msg msg--bot">
+                  <span class="msg__delta">+8,2%</span> — объём сделок, структура портфеля и рынок.
+                  Могу показать вклад по факторам.
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      <section class="slide" id="slide-3" data-slide="3" aria-labelledby="s3-title">
-        <div class="slide-inner">
-          <p class="slide-label" data-slot="s3-label">Для кого</p>
-          <h2 id="s3-title" data-slot="about-title">Бизнесу — просто, аналитике — точно</h2>
-          <p class="slide-kicker" data-slot="about-kicker">
-            Один интерфейс для разных ролей: от быстрого ответа руководителю до глубокого
-            разбора метрик
-          </p>
-          <p class="slide-text" data-slot="about-body">
-            Satta говорит на языке бизнеса — портфели, клиенты, продукты, риски, периоды.
-            Ответы опираются на согласованные определения метрик, чтобы цифры в чате
-            совпадали с тем, что принято в компании.
-          </p>
-          <ul class="tag-grid" role="list">
-            <li class="tag" data-slot="entity-1">Руководители</li>
-            <li class="tag" data-slot="entity-2">Финансы и риски</li>
-            <li class="tag" data-slot="entity-3">Продукт и продажи</li>
-            <li class="tag" data-slot="entity-4">Аналитики</li>
-            <li class="tag" data-slot="entity-5">Контроль качества данных</li>
-            <li class="tag" data-slot="entity-6">Единая картина по метрикам</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="slide slide-muted" id="slide-4" data-slide="4" aria-labelledby="s4-title">
-        <div class="slide-inner">
-          <p class="slide-label" data-slot="s4-label">Возможности</p>
-          <h2 id="s4-title" data-slot="work-title">Что можно спросить в чате</h2>
-          <ul class="card-grid card-grid--slides" role="list">
-            <li class="card">
-              <h3 data-slot="work-1-title">Текущее значение и динамика</h3>
-              <p data-slot="work-1-text">
-                Сколько сейчас, как изменилось за неделю, месяц или квартал — в нужном
-                разрезе.
-              </p>
-            </li>
-            <li class="card">
-              <h3 data-slot="work-2-title">Почему изменилось</h3>
-              <p data-slot="work-2-text">
-                Что дало рост или падение: объём, состав портфеля, рынок, клиенты, продукты.
-              </p>
-            </li>
-            <li class="card">
-              <h3 data-slot="work-3-title">Сравнения и сигналы</h3>
-              <p data-slot="work-3-text">
-                Сопоставить направления, увидеть вклад частей бизнеса, заметить необычные
-                отклонения.
-              </p>
-            </li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="slide" id="slide-5" data-slide="5" aria-labelledby="s5-title">
-        <div class="slide-inner">
-          <p class="slide-label" data-slot="s5-label">Примеры</p>
-          <h2 id="s5-title" data-slot="intents-title">Как формулируют вопросы</h2>
-          <p class="slide-kicker" data-slot="intents-kicker">
-            Живые фразы пользователей — без специальных команд
-          </p>
-          <ul class="intent-grid" role="list">
-            <li data-slot="intent-1">Какой показатель сейчас по нашему портфелю?</li>
-            <li data-slot="intent-2">Чем отличается от прошлого месяца?</li>
-            <li data-slot="intent-3">Почему метрика выросла?</li>
-            <li data-slot="intent-4">Что сильнее всего повлияло на изменение?</li>
-            <li data-slot="intent-5">Сравни два направления за квартал</li>
-            <li data-slot="intent-6">Есть ли что-то подозрительное в динамике?</li>
-          </ul>
-        </div>
-      </section>
-
-      <section class="slide slide-muted" id="slide-6" data-slide="6" aria-labelledby="s6-title">
-        <div class="slide-inner slide-inner--center">
-          <p class="slide-label" data-slot="s6-label">Контакт</p>
-          <h2 id="s6-title" data-slot="contact-title">Запросить демо Satta</h2>
-          <p class="slide-text" data-slot="contact-lead">
-            Покажем чат на ваших метриках и сценариях использования в компании.
-          </p>
-          <ul class="contact-list contact-list--inline" role="list">
+      <section class="band" id="chat" data-section aria-labelledby="chat-title">
+        <div class="wrap band__split">
+          <div>
+            <h2 id="chat-title">Чат вместо лабиринта дашбордов</h2>
+            <p class="band__text">
+              Пользователь формулирует вопрос как в переписке. Satta возвращает число с
+              контекстом — период, срез, сценарий — и при необходимости разворачивает
+              объяснение изменения.
+            </p>
+          </div>
+          <ul class="stat-row" role="list">
             <li>
-              <span class="contact-label">Email</span>
-              <a href="mailto:you@example.com" data-slot="contact-email">you@example.com</a>
+              <span class="stat-row__n">1</span>
+              <span class="stat-row__t">Спросить</span>
             </li>
             <li>
-              <span class="contact-label">Telegram</span>
-              <a href="https://t.me/username" data-slot="contact-telegram">@username</a>
+              <span class="stat-row__n">2</span>
+              <span class="stat-row__t">Сравнить</span>
+            </li>
+            <li>
+              <span class="stat-row__n">3</span>
+              <span class="stat-row__t">Понять причину</span>
             </li>
           </ul>
-          <p class="foot-inline" data-slot="footer-line">
-            © Satta · пользовательский чат для бизнеса и метрик
-          </p>
+        </div>
+      </section>
+
+      <section class="section" id="audience" data-section aria-labelledby="audience-title">
+        <div class="wrap">
+          <header class="section-head">
+            <h2 id="audience-title">Для всей компании — один язык метрик</h2>
+            <p>
+              Бизнес получает простые ответы. Аналитика и риски — согласованные определения и
+              проверяемые цифры в каждом сообщении чата.
+            </p>
+          </header>
+          <ul class="pill-row" role="list">
+            <li>Руководители</li>
+            <li>Финансы и риски</li>
+            <li>Продукт и продажи</li>
+            <li>Аналитические команды</li>
+            <li>Контроль данных</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section section--tint" id="features" data-section aria-labelledby="features-title">
+        <div class="wrap">
+          <header class="section-head">
+            <h2 id="features-title">Что можно делать в Satta</h2>
+            <p>Типовые сценарии анализа метрик — через обычные фразы в чате.</p>
+          </header>
+          <div class="bento">
+            <article class="bento__card bento__card--wide">
+              <h3>Значение и динамика</h3>
+              <p>Текущий показатель и изменение за выбранный период в нужном разрезе.</p>
+            </article>
+            <article class="bento__card">
+              <h3>Сравнение</h3>
+              <p>Портфели, направления, периоды — в одном ответе.</p>
+            </article>
+            <article class="bento__card">
+              <h3>Драйверы</h3>
+              <p>Что дало рост или падение: объём, микс, рынок, клиенты.</p>
+            </article>
+            <article class="bento__card bento__card--wide">
+              <h3>Сигналы</h3>
+              <p>Необычные отклонения и вклад частей бизнеса — когда метрика «ведёт себя
+                странно».</p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="examples" data-section aria-labelledby="examples-title">
+        <div class="wrap wrap--narrow">
+          <header class="section-head">
+            <h2 id="examples-title">Примеры вопросов</h2>
+            <p>Без команд и синтаксиса — как в разговоре с коллегой.</p>
+          </header>
+          <ul class="quote-list" role="list">
+            <li>Какой показатель сейчас по нашему портфелю?</li>
+            <li>Чем отличается от прошлого месяца?</li>
+            <li>Почему метрика выросла?</li>
+            <li>Что сильнее всего повлияло на изменение?</li>
+            <li>Сравни два направления за квартал</li>
+            <li>Есть ли аномалии в динамике?</li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="cta" id="contact" data-section aria-labelledby="cta-title">
+        <div class="wrap cta__box">
+          <h2 id="cta-title">Запросить демо Satta</h2>
+          <p>Покажем чат на ваших метриках и сценариях использования.</p>
+          <div class="cta__links">
+            <a class="cta__link" href="mailto:you@example.com">you@example.com</a>
+            <a class="cta__link" href="https://t.me/username">Telegram</a>
+          </div>
         </div>
       </section>
     </main>
 
+    <footer class="site-footer">
+      <div class="wrap site-footer__inner">
+        <span>© Satta</span>
+        <span>Пользовательский чат для бизнеса и анализа метрик</span>
+      </div>
+    </footer>
+
     <script src="theme.js"></script>
-    <script src="slides.js"></script>
+    <script src="nav.js"></script>
   </body>
 </html>
