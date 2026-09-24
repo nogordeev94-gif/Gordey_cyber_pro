@@ -3,126 +3,40 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fbfbfd" />
-    <title>Satta</title>
-    <meta name="description" content="Satta — чат для бизнес-метрик." />
+    <meta name="theme-color" content="#f4f9fd" />
+    <title>Satta — вопрос по метрике</title>
+    <meta name="description" content="Задайте вопрос по экономическому капиталу." />
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
-    <script>
-      (function () {
-        try {
-          var stored =
-            localStorage.getItem("satta-theme") || localStorage.getItem("t1-theme");
-          var theme =
-            stored === "light" || stored === "dark"
-              ? stored
-              : window.matchMedia("(prefers-color-scheme: dark)").matches
-                ? "dark"
-                : "light";
-          document.documentElement.setAttribute("data-theme", theme);
-        } catch (e) {
-          document.documentElement.setAttribute("data-theme", "light");
-        }
-      })();
-    </script>
   </head>
   <body>
-    <header class="site-header">
-      <div class="site-header__inner">
-        <a class="logo" href="#" data-tab-trigger="overview">Satta</a>
-        <nav class="site-nav" aria-label="Разделы">
-          <a href="#" data-tab-trigger="overview">Идея</a>
-          <a href="#" data-tab-trigger="flow">Процесс</a>
-          <a href="#" data-tab-trigger="chat">Чат</a>
-          <a href="#" data-tab-trigger="scenarios">Сценарии</a>
-          <a href="#" data-tab-trigger="contact">Связь</a>
-        </nav>
-        <button class="theme-toggle" type="button" aria-label="Тема">
-          <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
-            <path fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21" />
-          </svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
-            <path fill="currentColor" d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z" />
-          </svg>
-        </button>
-      </div>
+    <header class="top">
+      <span class="top__brand">Satta</span>
     </header>
 
-    <main class="main">
-      <div class="wrap intro">
-        <p class="intro__label">Презентация</p>
-        <h1>Чат для бизнес-метрик</h1>
-      </div>
+    <main class="page">
+      <p class="hint">Задайте свой вопрос</p>
+      <h1 class="title">По метрике экономического капитала</h1>
 
-      <div class="wrap tabs-wrap">
-        <div class="tabs" role="tablist">
-          <button class="tabs__btn is-active" type="button" role="tab" data-tab="overview" aria-selected="true">Идея</button>
-          <button class="tabs__btn" type="button" role="tab" data-tab="flow" tabindex="-1">Процесс</button>
-          <button class="tabs__btn" type="button" role="tab" data-tab="chat" tabindex="-1">Чат</button>
-          <button class="tabs__btn" type="button" role="tab" data-tab="scenarios" tabindex="-1">Сценарии</button>
-          <button class="tabs__btn" type="button" role="tab" data-tab="contact" tabindex="-1">Связь</button>
-        </div>
-      </div>
+      <form class="ask" id="ask-form" novalidate>
+        <label class="sr-only" for="question">Ваш вопрос</label>
+        <textarea
+          id="question"
+          name="question"
+          class="ask__input"
+          rows="4"
+          placeholder="Например: какой ЭК по портфелю «Корпоративный» на сегодня?"
+          required
+        ></textarea>
+        <button class="ask__btn" type="submit">Спросить</button>
+      </form>
 
-      <div class="wrap panels">
-        <section class="panel is-active" data-panel="overview" role="tabpanel">
-          <h2>Вопрос в чате — ответ с цифрой</h2>
-          <p class="panel__lead">Satta показывает, как это будет работать.</p>
-          <ul class="tiles">
-            <li>Спросили</li>
-            <li>Поняли метрику</li>
-            <li>Ответили</li>
-          </ul>
-        </section>
-
-        <section class="panel" data-panel="flow" role="tabpanel" hidden>
-          <h2>Шесть шагов</h2>
-          <ol class="flow-min">
-            <li>Вопрос</li>
-            <li>Смысл запроса</li>
-            <li>Проверка</li>
-            <li>Расчёт</li>
-            <li>Ответ</li>
-            <li>Уточнение</li>
-          </ol>
-        </section>
-
-        <section class="panel" data-panel="chat" role="tabpanel" hidden>
-          <h2>Диалог</h2>
-          <div class="chat">
-            <p class="chat__u">Какой ЭК по портфелю?</p>
-            <p class="chat__b"><strong>12,4 млрд ₽</strong> · сегодня</p>
-            <p class="chat__u">Почему вырос?</p>
-            <p class="chat__b"><strong>+8,2%</strong> · объём и микс</p>
-          </div>
-        </section>
-
-        <section class="panel" data-panel="scenarios" role="tabpanel" hidden>
-          <h2>Главные сценарии</h2>
-          <ul class="lines">
-            <li><span>Значение</span><span>«Какой ЭК сейчас?»</span></li>
-            <li><span>Сравнение</span><span>«Как изменился за месяц?»</span></li>
-            <li><span>Причина</span><span>«Почему вырос?»</span></li>
-            <li><span>Факторы</span><span>«Что повлияло сильнее?»</span></li>
-            <li><span>Сигнал</span><span>«Есть аномалия?»</span></li>
-          </ul>
-        </section>
-
-        <section class="panel" data-panel="contact" role="tabpanel" hidden>
-          <h2>Демо</h2>
-          <p class="panel__lead">Обсудить пилот на ваших метриках.</p>
-          <div class="links">
-            <a href="mailto:you@example.com">you@example.com</a>
-            <a href="https://t.me/username">Telegram</a>
-          </div>
-        </section>
+      <div class="answer" id="answer" hidden aria-live="polite">
+        <p class="answer__label">Ответ (превью)</p>
+        <p class="answer__text" id="answer-text"></p>
       </div>
     </main>
 
-    <footer class="foot">Satta · чат для метрик</footer>
-
-    <script src="theme.js"></script>
-    <script src="tabs.js"></script>
+    <script src="ask.js"></script>
   </body>
 </html>
