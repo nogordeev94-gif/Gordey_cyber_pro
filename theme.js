@@ -11,7 +11,7 @@
     root.setAttribute("data-theme", theme);
     if (meta) meta.setAttribute("content", theme === "dark" ? "#000000" : "#f5f5f7");
     try {
-      localStorage.setItem("t1-theme", theme);
+      localStorage.setItem("satta-theme", theme);
     } catch (e) {}
     if (button) {
       button.setAttribute(
