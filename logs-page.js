@@ -1,11 +1,148 @@
 (function () {
-  var STORAGE_KEY = "satta:normalize-logs";
-  var flow = document.getElementById("log-flow");
+  var STORAGE_KEY = "satta:pipeline-logs";
+  var root = document.getElementById("pipeline-root");
   var empty = document.getElementById("log-empty");
   var history = document.getElementById("log-history");
-  var originalEl = document.getElementById("log-original");
-  var normalizedEl = document.getElementById("log-normalized");
-  var note = document.getElementById("log-note");
+
+  function esc(s) {
+    return String(s || "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function preJson(obj) {
+    return esc(JSON.stringify(obj, null, 2));
+  }
+
+  function step(title, bodyHtml) {
+    return (
+      '<section class="pipe-step">' +
+      '<h2 class="pipe-step__title">' +
+      esc(title) +
+      "</h2>" +
+      bodyHtml +
+      "</section>"
+    );
+  }
+
+  function renderRecord(record) {
+    var html = "";
+    html += step(
+      "STEP 1 — User Query",
+      '<p class="pipe-text">' + esc(record.user_query) + "</p>"
+    );
+
+    var syn = record.synonym || {};
+    var termsHtml = (syn.terms || [])
+      .map(function (t) {
+        return (
+          "<li><code>" +
+          esc(t.original) +
+          "</code> → <strong>" +
+          esc(t.canonical || "—") +
+          "</strong> <span class='pipe-meta'>(" +
+          esc(t.match_type) +
+          ", " +
+          (t.confidence != null ? t.confidence.toFixed(2) : "—") +
+          ")</span></li>"
+        );
+      })
+      .join("");
+    html += step(
+      "STEP 2 — Synonym Agent",
+      "<p class='pipe-meta'>status: <strong>" +
+        esc(syn.status) +
+        "</strong></p>" +
+        "<p class='pipe-text'>" +
+        esc(syn.normalized_query) +
+        "</p>" +
+        "<ul class='pipe-list'>" +
+        termsHtml +
+        "</ul>" +
+        (syn.clarification
+          ? "<p class='pipe-note'>" + esc(syn.clarification.question || "") + "</p>"
+          : "")
+    );
+
+    if (record.status === "NEEDS_CLARIFICATION" && record.semantic) {
+      html += step(
+        "STEP 3 — Semantic Layer Agent",
+        "<div class='semantic-panel'>" +
+          "<p class='semantic-panel__badge'>NEEDS CLARIFICATION</p>" +
+          "<p class='pipe-text'>" +
+          esc(record.semantic.clarification.question) +
+          "</p></div>"
+      );
+      return html;
+    }
+
+    var sem = record.semantic || {};
+    var ui = sem.ui || {};
+    html += step(
+      "STEP 3 — Semantic Layer Agent",
+      "<div class='semantic-panel'>" +
+        "<p class='semantic-panel__badge'>SEMANTIC LAYER</p>" +
+        "<dl class='semantic-dl'>" +
+        "<dt>Intent</dt><dd>" +
+        esc(sem.intent) +
+        "</dd>" +
+        "<dt>Operation</dt><dd><code>" +
+        esc(ui.operation || (sem.semantic_query && sem.semantic_query.operation)) +
+        "</code></dd>" +
+        "<dt>Entity</dt><dd>" +
+        esc(ui.entity) +
+        "</dd>" +
+        "<dt>Dimensions</dt><dd>" +
+        esc(
+          (ui.dimensions || [])
+            .map(function (d) {
+              return d.label || d.value || d.attribute;
+            })
+            .join(", ") || "—"
+        ) +
+        "</dd>" +
+        "<dt>Period</dt><dd>" +
+        esc((ui.time && ui.time.label) || "—") +
+        "</dd>" +
+        "<dt>Required entities</dt><dd>" +
+        esc((ui.required_entities || []).join(", ")) +
+        "</dd>" +
+        "<dt>Business rules</dt><dd>" +
+        esc((sem.business_rules || []).join("; ")) +
+        "</dd>" +
+        "</dl></div>"
+    );
+
+    html += step(
+      "STEP 4 — Semantic Query",
+      "<pre class='pipe-json'>" + preJson(sem.semantic_query) + "</pre>" +
+        "<p class='pipe-meta'>Evidence</p><pre class='pipe-json'>" +
+        preJson(sem.evidence_requirements) +
+        "</pre>"
+    );
+
+    var sql = record.sql || {};
+    html += step(
+      "STEP 5 — SQL Agent",
+      "<pre class='pipe-sql'>" + esc(sql.sql) + "</pre>" +
+        "<p class='pipe-meta'>mapping: " +
+        esc(sql.mapping_version) +
+        "</p>"
+    );
+
+    html += step(
+      "STEP 6 — Execution",
+      "<pre class='pipe-json'>" + preJson(sql.execution) + "</pre>"
+    );
+
+    html += step(
+      "STEP 7 — Final Answer",
+      "<pre class='pipe-answer'>" + esc(record.final_answer) + "</pre>"
+    );
+
+    return html;
+  }
 
   var logs = [];
   try {
@@ -17,30 +154,11 @@
   if (!logs.length) return;
 
   var latest = logs[logs.length - 1];
-  originalEl.textContent = latest.original;
-  normalizedEl.textContent = latest.normalized;
-  flow.hidden = false;
+  root.innerHTML = renderRecord(latest);
+  root.hidden = false;
   empty.hidden = true;
 
-  if (note && latest.clarifications && latest.clarifications.length) {
-    note.hidden = false;
-    note.innerHTML = latest.clarifications
-      .map(function (c) {
-        if (c.accepted) {
-          return (
-            "Добавлено в словарь: <strong>" +
-            c.term +
-            "</strong> → <strong>" +
-            c.preferred +
-            "</strong>"
-          );
-        }
-        return "Не добавлено: «" + c.term + "» (пользователь ответил «нет»)";
-      })
-      .join("<br />");
-  }
-
-  if (logs.length > 1) {
+  if (logs.length > 1 && history) {
     history.hidden = false;
     history.innerHTML = logs
       .slice()
@@ -51,9 +169,7 @@
           "<li><strong>" +
           new Date(item.ts).toLocaleString("ru-RU") +
           "</strong><br />" +
-          item.original +
-          " → " +
-          item.normalized +
+          esc(item.user_query) +
           "</li>"
         );
       })

@@ -1,0 +1,94 @@
+{
+  "entities": {
+    "EconomicCapital": {
+      "title": "Экономический капитал",
+      "description": "Ключевая метрика риска и капитала по методологии банка.",
+      "attributes": ["value", "as_of_date", "portfolio", "methodology_version", "scenario"],
+      "operations": ["get_value", "compare", "aggregate", "analyze_dynamics", "explain_change"]
+    },
+    "EconomicCapitalComponent": {
+      "title": "Компонент экономического капитала",
+      "attributes": ["component_value", "risk_type"],
+      "operations": ["get_value", "decompose"]
+    },
+    "EconomicCapitalChange": {
+      "title": "Изменение экономического капитала",
+      "attributes": ["absolute_change", "relative_change"],
+      "operations": ["explain_change", "analyze_dynamics"]
+    },
+    "Portfolio": {
+      "title": "Портфель",
+      "attributes": ["portfolio_id", "portfolio_name", "portfolio_type"],
+      "operations": ["filter", "compare_portfolios"]
+    },
+    "RiskFactor": {
+      "title": "Фактор риска",
+      "operations": ["find_drivers", "decompose"]
+    },
+    "FactorContribution": {
+      "title": "Вклад фактора",
+      "operations": ["analyze_contribution", "decompose"]
+    },
+    "Methodology": {
+      "title": "Методология",
+      "attributes": ["methodology_version"]
+    },
+    "Scenario": {
+      "title": "Сценарий",
+      "attributes": ["scenario"]
+    },
+    "ReportingPeriod": {
+      "title": "Отчётный период",
+      "attributes": ["from", "to"]
+    }
+  },
+  "relationships": [
+    { "from": "EconomicCapital", "to": "EconomicCapitalComponent", "type": "consists_of" },
+    { "from": "EconomicCapital", "to": "Portfolio", "type": "calculated_for" },
+    { "from": "EconomicCapital", "to": "RiskFactor", "type": "affected_by" },
+    { "from": "EconomicCapital", "to": "EconomicCapitalChange", "type": "has_change" },
+    { "from": "EconomicCapitalChange", "to": "FactorContribution", "type": "decomposed_by" },
+    { "from": "FactorContribution", "to": "RiskFactor", "type": "attributed_to" }
+  ],
+  "business_rules": [
+    "Сравнение выполняется только для сопоставимых периодов",
+    "Для сравнения портфелей используется одна версия методологии",
+    "Декомпозиция изменения доступна только при наличии факторного витринного слоя"
+  ],
+  "operations": [
+    "get_value",
+    "compare",
+    "aggregate",
+    "filter",
+    "analyze_dynamics",
+    "explain_change",
+    "find_drivers",
+    "decompose",
+    "compare_portfolios",
+    "analyze_contribution",
+    "check_comparability",
+    "detect_anomaly"
+  ],
+  "intents": [
+    {
+      "id": "get_value",
+      "patterns": ["покажи", "показать", "какой", "сколько", "значение", "get value"],
+      "operation": "get_value"
+    },
+    {
+      "id": "analyze_dynamics",
+      "patterns": ["изменился", "изменилась", "динамик", "за июнь", "за май", "тренд"],
+      "operation": "analyze_dynamics"
+    },
+    {
+      "id": "explain_change",
+      "patterns": ["почему", "причина", "объясни", "вырос", "выросла", "упал", "снизился"],
+      "operation": "explain_change"
+    },
+    {
+      "id": "compare_portfolios",
+      "patterns": ["сравни", "сравнить", "сравнение", "корпоративн", "розничн"],
+      "operation": "compare_portfolios"
+    }
+  ]
+}

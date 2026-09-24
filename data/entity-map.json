@@ -1,0 +1,18 @@
+{
+  "economic_capital": "EconomicCapital",
+  "economic_capital_component": "EconomicCapitalComponent",
+  "economic_capital_change": "EconomicCapitalChange",
+  "portfolio": "Portfolio",
+  "risk_type": "RiskType",
+  "deal": "Deal",
+  "client": "Client",
+  "product": "Product",
+  "client_segment": "ClientSegment",
+  "currency": "Currency",
+  "calculation_date": "CalculationDate",
+  "reporting_period": "ReportingPeriod",
+  "scenario": "Scenario",
+  "methodology": "Methodology",
+  "risk_factor": "RiskFactor",
+  "factor_contribution": "FactorContribution"
+}

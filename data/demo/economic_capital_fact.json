@@ -1,0 +1,38 @@
+[
+  {
+    "date": "2026-05-31",
+    "portfolio_id": "P_CORP",
+    "portfolio_name": "Корпоративный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 1245000000
+  },
+  {
+    "date": "2026-06-30",
+    "portfolio_id": "P_CORP",
+    "portfolio_name": "Корпоративный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 1312000000
+  },
+  {
+    "date": "2026-05-31",
+    "portfolio_id": "P_RET",
+    "portfolio_name": "Розничный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 820000000
+  },
+  {
+    "date": "2026-06-30",
+    "portfolio_id": "P_RET",
+    "portfolio_name": "Розничный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 845000000
+  }
+]

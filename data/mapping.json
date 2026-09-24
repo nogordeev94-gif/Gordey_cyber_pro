@@ -1,0 +1,32 @@
+{
+  "version": "demo-v1",
+  "attributes": {
+    "EconomicCapital.value": {
+      "logical": "EconomicCapital.value",
+      "source": "Risk Mart",
+      "table": "economic_capital_fact",
+      "field": "economic_capital",
+      "transformation": null
+    },
+    "EconomicCapital.as_of_date": {
+      "table": "economic_capital_fact",
+      "field": "date"
+    },
+    "EconomicCapital.portfolio": {
+      "table": "economic_capital_fact",
+      "field": "portfolio_id"
+    },
+    "EconomicCapital.methodology_version": {
+      "table": "economic_capital_fact",
+      "field": "methodology_version"
+    },
+    "Portfolio.portfolio_type": {
+      "table": "portfolio",
+      "field": "portfolio_type"
+    },
+    "FactorContribution.contribution_value": {
+      "table": "factor_contribution",
+      "field": "contribution_value"
+    }
+  }
+}

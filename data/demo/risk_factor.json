@@ -1,0 +1,5 @@
+[
+  { "factor_id": "F_VOL", "factor_name": "Изменение объёма", "factor_type": "volume" },
+  { "factor_id": "F_RISK", "factor_name": "Изменение параметров риска", "factor_type": "risk_parameter" },
+  { "factor_id": "F_MIX", "factor_name": "Изменение структуры портфеля", "factor_type": "portfolio_mix" }
+]

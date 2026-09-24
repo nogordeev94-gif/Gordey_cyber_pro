@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Satta — архитектура Semantic Layer</title>
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pages.css" />
+  </head>
+  <body>
+    <header class="top top--row">
+      <a class="top__brand" href="index.html">Satta</a>
+      <nav class="top__nav">
+        <a class="top__link" href="index.html">Чат</a>
+        <a class="top__link" href="ontology.html">Онтология</a>
+      </nav>
+    </header>
+
+    <main class="page page--wide">
+      <h1 class="title">Архитектура Semantic Layer</h1>
+      <p class="panel__lead">
+        Разделение ответственности: бизнес-смысл, логический запрос и физическая реализация данных.
+      </p>
+
+      <h2 class="pipe-step__title">Внешний pipeline</h2>
+      <div class="arch-diagram">
+        <div class="arch-box">USER</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box arch-box--accent">Synonym Agent</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box arch-box--accent">Semantic Layer Agent</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box arch-box--accent">SQL Agent</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box">Demo Data</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box">Result</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box">LLM</div>
+        <div class="arch-arrow">↓</div>
+        <div class="arch-box">Answer + Evidence</div>
+      </div>
+
+      <div class="arch-columns">
+        <div>
+          <h2 class="pipe-step__title">Внутри Semantic Layer</h2>
+          <div class="arch-diagram">
+            <div class="arch-box">Ontology</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Relationships</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Semantic Intent</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Operations</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Business Rules</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Mapping (вне SL для SQL Agent)</div>
+            <div class="arch-arrow">↓</div>
+            <div class="arch-box">Semantic Result / Evidence</div>
+          </div>
+        </div>
+        <div class="pipe-step">
+          <h2 class="pipe-step__title">Принцип</h2>
+          <p class="pipe-text">
+            Semantic Layer Agent оперирует понятиями вида <code>EconomicCapital.value</code> и
+            операциями каталога (<code>get_value</code>, <code>explain_change</code>).
+          </p>
+          <p class="pipe-text" style="margin-top: 12px">
+            SQL Agent переводит Semantic Query в SQL, используя Mapping:
+            <code>economic_capital_fact.economic_capital</code> — только на физическом уровне.
+          </p>
+          <p class="pipe-meta" style="margin-top: 12px">
+            Semantic Layer Agent не генерирует SQL и не знает физические имена полей.
+          </p>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>

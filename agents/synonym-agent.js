@@ -66,6 +66,7 @@
   }
 
   var ENTRIES_BASE = [];
+  var ENTITY_MAP = {};
 
   function mergeEntries(base, custom) {
     return (base || []).map(function (entry) {
@@ -102,6 +103,9 @@
   function initFromDictionary(entries) {
     ENTRIES = entries || [];
     rebuildKnown(ENTRIES);
+    if (global.SattaMorphology) {
+      global.SattaMorphology.buildFromDictionary(ENTRIES);
+    }
     RULES = [];
     ENTRIES.forEach(function (entry) {
       var preferred = entry.preferred;
@@ -154,6 +158,12 @@
     "какое",
     "сколько",
     "почему",
+    "покажи",
+    "показать",
+    "изменился",
+    "изменилась",
+    "сравни",
+    "сравнить",
     "есть",
     "ли",
     "the",
@@ -211,6 +221,10 @@
 
   function isMorphologicalVariant(token) {
     var t = String(token).toLowerCase();
+    if (global.SattaMorphology) {
+      var hit = global.SattaMorphology.resolveForm(t);
+      if (hit) return true;
+    }
     var found = false;
     eachDictionaryWord(function (w) {
       if (found || w.length < 4) return;
@@ -224,6 +238,169 @@
       }
     });
     return found;
+  }
+
+  function lookupExactToken(token) {
+    var t = String(token).toLowerCase();
+    var found = null;
+    ENTRIES.forEach(function (entry) {
+      if (found) return;
+      if (entry.preferred.toLowerCase() === t) found = entry;
+      (entry.synonyms || []).forEach(function (s) {
+        if (String(s).toLowerCase() === t) found = entry;
+      });
+    });
+    return found;
+  }
+
+  function canonicalForEntry(entry) {
+    if (global.SattaMorphology) {
+      return global.SattaMorphology.capitalizePreferred(entry.preferred);
+    }
+    return entry.preferred;
+  }
+
+  function replaceTokenInText(text, token, replacement) {
+    var re = buildBoundaryPattern(token);
+    return String(text).replace(re, replacement);
+  }
+
+  function analyzeQuery(text) {
+    var tokens = tokenize(text);
+    var terms = [];
+    var normalized = String(text || "");
+    var clarification = null;
+    var unknownTerm = null;
+    var seen = Object.create(null);
+
+    tokens.forEach(function (token) {
+      var lower = token.toLowerCase();
+      if (seen[lower] || STOP.has(lower)) return;
+      seen[lower] = true;
+
+      if (KNOWN.has(lower) && !lookupExactToken(lower)) {
+        if (!global.SattaMorphology || !global.SattaMorphology.resolveForm(lower)) {
+          return;
+        }
+      }
+
+      var exactEntry = lookupExactToken(lower);
+      if (exactEntry) {
+        terms.push({
+          original: token,
+          canonical: canonicalForEntry(exactEntry),
+          match_type: KNOWN.has(lower) ? "exact" : "synonym",
+          confidence: 1,
+          entryId: exactEntry.id,
+        });
+        return;
+      }
+
+      if (global.SattaMorphology) {
+        var morph = global.SattaMorphology.resolveForm(lower);
+        if (morph) {
+          terms.push({
+            original: token,
+            canonical: morph.canonical,
+            match_type: "morphology",
+            confidence: 0.98,
+            entryId: morph.entryId,
+          });
+          if (morph.preferred.indexOf(" ") < 0) {
+            normalized = replaceTokenInText(normalized, token, morph.preferred);
+          }
+          return;
+        }
+      }
+
+      if (isLikelyTypoOfKnown(lower)) {
+        return;
+      }
+
+      var suggestion = suggestForToken(lower);
+      if (suggestion) {
+        terms.push({
+          original: token,
+          canonical: suggestion.preferred,
+          match_type: "fuzzy",
+          confidence: suggestion.confidence,
+          entryId: suggestion.entryId,
+        });
+        if (!clarification) {
+          var sugEntry = null;
+          for (var ei = 0; ei < ENTRIES.length; ei++) {
+            if (ENTRIES[ei].id === suggestion.entryId) {
+              sugEntry = ENTRIES[ei];
+              break;
+            }
+          }
+          var canon = canonicalForEntry(sugEntry || { preferred: suggestion.preferred });
+          clarification = {
+            original_term: token,
+            suggested_term: canon,
+            question: "Под «" + token + "» вы имеете в виду «" + canon + "»?",
+            entryId: suggestion.entryId,
+            confidence: suggestion.confidence,
+          };
+        }
+        return;
+      }
+
+      if (lower.length >= 4) {
+        unknownTerm = token;
+        terms.push({
+          original: token,
+          canonical: null,
+          match_type: "unknown",
+          confidence: 0,
+        });
+      }
+    });
+
+    normalized = normalizeQuery(text);
+    tokens.forEach(function (token) {
+      var lower = token.toLowerCase();
+      if (!global.SattaMorphology) return;
+      var morph = global.SattaMorphology.resolveForm(lower);
+      if (morph && morph.preferred.indexOf(" ") < 0) {
+        normalized = replaceTokenInText(normalized, token, morph.preferred);
+      }
+    });
+    normalized = normalizeQuery(normalized);
+
+    if (clarification) {
+      return {
+        status: "NEEDS_CONFIRMATION",
+        normalized_query: normalized,
+        terms: terms,
+        clarification: clarification,
+      };
+    }
+
+    if (unknownTerm) {
+      return {
+        status: "UNKNOWN",
+        normalized_query: normalized,
+        terms: terms,
+        clarification: {
+          question:
+            "Не удалось распознать термин «" +
+            unknownTerm +
+            "». Уточните формулировку или добавьте синоним в словарь.",
+          original_term: unknownTerm,
+        },
+      };
+    }
+
+    var hasMorph = terms.some(function (t) {
+      return t.match_type === "morphology";
+    });
+    return {
+      status: hasMorph ? "NORMALIZED" : "MATCHED",
+      normalized_query: normalized,
+      terms: terms,
+      clarification: null,
+    };
   }
 
   function isLikelyTypoOfKnown(token) {
@@ -341,6 +518,21 @@
       });
   }
 
+  function loadEntityMap(url) {
+    return fetch(url || "data/entity-map.json")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (map) {
+        ENTITY_MAP = map || {};
+        return ENTITY_MAP;
+      })
+      .catch(function () {
+        ENTITY_MAP = {};
+        return ENTITY_MAP;
+      });
+  }
+
   function getMergedDictionary() {
     return mergeEntries(ENTRIES_BASE, loadCustomSynonyms());
   }
@@ -348,7 +540,9 @@
   global.SattaSynonymAgent = {
     initFromDictionary: initFromDictionary,
     normalizeQuery: normalizeQuery,
+    analyzeQuery: analyzeQuery,
     loadDictionary: loadDictionary,
+    loadEntityMap: loadEntityMap,
     findUnclearTerms: findUnclearTerms,
     saveCustomSynonym: saveCustomSynonym,
     canLearnSynonym: canLearnSynonym,

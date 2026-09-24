@@ -16,6 +16,8 @@
       <nav class="top__nav">
         <a class="top__link" href="synonyms.html">Синонимы</a>
         <a class="top__link" href="logs.html">Логи</a>
+        <a class="top__link" href="ontology.html">Онтология</a>
+        <a class="top__link" href="architecture.html">Архитектура</a>
       </nav>
     </header>
 
@@ -36,6 +38,12 @@
         <button class="ask__btn" type="submit">Спросить</button>
       </form>
 
+      <p class="page-links">
+        <a href="ontology.html">Онтология</a>
+        ·
+        <a href="architecture.html">Архитектура Semantic Layer</a>
+      </p>
+
       <div class="clarify" id="clarify" hidden aria-live="polite">
         <p class="clarify__label">Satta уточняет</p>
         <p class="clarify__text" id="clarify-text"></p>
@@ -48,7 +56,11 @@
       </div>
     </main>
 
+    <script src="agents/morphology.js"></script>
     <script src="agents/synonym-agent.js"></script>
+    <script src="agents/semantic-layer-agent.js"></script>
+    <script src="agents/sql-agent.js"></script>
+    <script src="agents/pipeline.js"></script>
     <script src="ask.js"></script>
   </body>
 </html>

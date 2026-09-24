@@ -1,0 +1,12 @@
+[
+  {
+    "portfolio_id": "P_CORP",
+    "portfolio_name": "Корпоративный",
+    "portfolio_type": "Corporate"
+  },
+  {
+    "portfolio_id": "P_RET",
+    "portfolio_name": "Розничный",
+    "portfolio_type": "Retail"
+  }
+]

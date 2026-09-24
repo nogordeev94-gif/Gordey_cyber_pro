@@ -5,64 +5,64 @@
   var clarifyText = document.getElementById("clarify-text");
   var clarifyYes = document.getElementById("clarify-yes");
   var clarifyNo = document.getElementById("clarify-no");
-  var STORAGE_KEY = "satta:normalize-logs";
 
   var pendingQuestion = "";
-  var pendingSuggestion = null;
+  var pendingClarification = null;
   var confirmedTerms = [];
+  var rejectedTerms = new Set();
 
   if (!form || !input) return;
 
-  function saveLog(original, normalized, meta) {
-    var logs = [];
-    try {
-      logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-    } catch (e) {
-      logs = [];
-    }
-    logs.push({
-      original: original,
-      normalized: normalized,
-      ts: Date.now(),
-      clarifications: meta && meta.clarifications ? meta.clarifications : [],
-    });
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(logs.slice(-50)));
-  }
-
   function hideClarify() {
     if (clarify) clarify.hidden = true;
-    pendingSuggestion = null;
+    pendingClarification = null;
   }
 
-  function showClarify(suggestion) {
-    pendingSuggestion = suggestion;
+  function showClarify(message) {
     if (!clarify || !clarifyText) return;
-    clarifyText.textContent =
-      'Термин «' +
-      suggestion.term +
-      '» — вы имели в виду «' +
-      suggestion.preferred +
-      '»?';
+    clarifyText.textContent = message;
     clarify.hidden = false;
   }
 
-  function finishFlow(question) {
-    var normalized = SattaSynonymAgent.normalizeQuery(question);
-    saveLog(question, normalized, { clarifications: confirmedTerms.slice() });
-    window.location.href = "logs.html";
+  function bootstrapAgents() {
+    return SattaSynonymAgent.loadDictionary("data/synonyms.json").then(function () {
+      return SattaSynonymAgent.loadEntityMap("data/entity-map.json");
+    });
   }
 
-  var rejectedTerms = new Set();
-
-  function processQuestion(question) {
-    var unclear = SattaSynonymAgent.findUnclearTerms(question).filter(function (s) {
-      return !rejectedTerms.has(s.term);
+  function runPipeline(question, analysis) {
+    return SattaPipeline.runAfterSynonym(question, analysis).then(function (record) {
+      if (record.status === "NEEDS_CLARIFICATION") {
+        SattaPipeline.savePipelineLog(record);
+      }
+      window.location.href = "logs.html";
     });
-    if (unclear.length) {
-      showClarify(unclear[0]);
+  }
+
+  function finishSynonymPhase(question) {
+    var analysis = SattaSynonymAgent.analyzeQuery(question);
+
+    if (analysis.status === "NEEDS_CONFIRMATION") {
+      var c = analysis.clarification;
+      if (c && rejectedTerms.has(String(c.original_term).toLowerCase())) {
+        analysis.status = "MATCHED";
+        analysis.clarification = null;
+        return runPipeline(question, analysis);
+      }
+      if (c) {
+        pendingClarification = c;
+        showClarify(c.question);
+        return;
+      }
+    }
+
+    if (analysis.status === "UNKNOWN") {
+      pendingClarification = { unknown: true, term: analysis.clarification.original_term };
+      showClarify(analysis.clarification.question);
       return;
     }
-    finishFlow(question);
+
+    runPipeline(question, analysis);
   }
 
   form.addEventListener("submit", function (e) {
@@ -77,44 +77,51 @@
     rejectedTerms = new Set();
     hideClarify();
 
-    SattaSynonymAgent.loadDictionary("data/synonyms.json")
+    bootstrapAgents()
       .then(function () {
-        processQuestion(q);
+        finishSynonymPhase(q);
       })
       .catch(function () {
-        saveLog(q, q, { clarifications: [] });
         window.location.href = "logs.html";
       });
   });
 
   if (clarifyYes) {
     clarifyYes.addEventListener("click", function () {
-      if (!pendingSuggestion || !pendingQuestion) return;
+      if (!pendingClarification || !pendingQuestion) return;
+      if (pendingClarification.unknown) {
+        hideClarify();
+        return;
+      }
       SattaSynonymAgent.saveCustomSynonym(
-        pendingSuggestion.entryId,
-        pendingSuggestion.term
+        pendingClarification.entryId,
+        pendingClarification.original_term
       );
       confirmedTerms.push({
-        term: pendingSuggestion.term,
-        preferred: pendingSuggestion.preferred,
+        term: pendingClarification.original_term,
+        preferred: pendingClarification.suggested_term,
         accepted: true,
       });
       hideClarify();
-      processQuestion(pendingQuestion);
+      finishSynonymPhase(pendingQuestion);
     });
   }
 
   if (clarifyNo) {
     clarifyNo.addEventListener("click", function () {
-      if (!pendingSuggestion || !pendingQuestion) return;
-      confirmedTerms.push({
-        term: pendingSuggestion.term,
-        preferred: pendingSuggestion.preferred,
-        accepted: false,
-      });
-      rejectedTerms.add(pendingSuggestion.term);
+      if (!pendingClarification || !pendingQuestion) return;
+      if (!pendingClarification.unknown) {
+        rejectedTerms.add(pendingClarification.original_term);
+        confirmedTerms.push({
+          term: pendingClarification.original_term,
+          preferred: pendingClarification.suggested_term,
+          accepted: false,
+        });
+      }
       hideClarify();
-      processQuestion(pendingQuestion);
+      if (!pendingClarification.unknown) {
+        finishSynonymPhase(pendingQuestion);
+      }
     });
   }
 })();
