@@ -54,14 +54,15 @@
   }
 
   function saveCustomSynonym(entryId, term) {
+    var t = String(term).trim().toLowerCase();
+    if (!t || !canLearnSynonym(t)) return false;
     var custom = loadCustomSynonyms();
     var list = custom[entryId] || [];
-    var t = String(term).trim().toLowerCase();
-    if (!t) return;
     if (list.indexOf(t) === -1) list.push(t);
     custom[entryId] = list;
     localStorage.setItem(CUSTOM_KEY, JSON.stringify(custom));
     rebuildFromEntries(mergeEntries(ENTRIES_BASE, custom));
+    return true;
   }
 
   var ENTRIES_BASE = [];
@@ -178,14 +179,94 @@
       return w.slice(0, 3);
     }).join(""));
     out.push(preferred.toLowerCase().replace(/\s+/g, ""));
+    if (words.length >= 2) {
+      var w0 = words[0].replace(/[ьъ]/g, "");
+      var w1 = words[1];
+      if (w0.length >= 2 && w1.length >= 3) {
+        var slang = w0.slice(0, 2) + w1.slice(1, 3);
+        out.push(slang);
+        if (w0[0] === "э") {
+          out.push("е" + slang.slice(1));
+        }
+      }
+    }
     return out;
+  }
+
+  function eachDictionaryWord(fn) {
+    ENTRIES.forEach(function (entry) {
+      function scan(text) {
+        String(text || "")
+          .toLowerCase()
+          .split(/\s+/)
+          .forEach(function (w) {
+            w = w.replace(/[.,]/g, "");
+            if (w) fn(w, entry);
+          });
+      }
+      scan(entry.preferred);
+      (entry.synonyms || []).forEach(scan);
+    });
+  }
+
+  function isMorphologicalVariant(token) {
+    var t = String(token).toLowerCase();
+    var found = false;
+    eachDictionaryWord(function (w) {
+      if (found || w.length < 4) return;
+      var stem = w.slice(0, w.length - 1);
+      if (t === w) {
+        found = true;
+        return;
+      }
+      if (t.length >= stem.length && t.indexOf(stem) === 0 && t.length <= w.length + 3) {
+        found = true;
+      }
+    });
+    return found;
+  }
+
+  function isLikelyTypoOfKnown(token) {
+    var t = String(token).toLowerCase();
+    if (t.length < 5) return false;
+    var hit = false;
+    eachDictionaryWord(function (w) {
+      if (hit || w.length < 5) return;
+      if (levenshtein(t, w) <= 2 && similarity(t, w) >= 0.72) hit = true;
+    });
+    return hit;
+  }
+
+  function canLearnSynonym(term) {
+    var t = String(term).trim().toLowerCase();
+    if (!t) return false;
+    if (isMorphologicalVariant(t)) return false;
+    if (isLikelyTypoOfKnown(t)) return false;
+    return true;
   }
 
   function isKnownToken(token) {
     if (STOP.has(token)) return true;
     if (token.length < 2) return true;
     if (KNOWN.has(token)) return true;
+    if (isMorphologicalVariant(token)) return true;
+    if (isLikelyTypoOfKnown(token)) return true;
     return false;
+  }
+
+  function clarifyScore(suggestion) {
+    var entry = null;
+    for (var i = 0; i < ENTRIES.length; i++) {
+      if (ENTRIES[i].id === suggestion.entryId) {
+        entry = ENTRIES[i];
+        break;
+      }
+    }
+    var score = suggestion.confidence;
+    if (entry && entry.category === "метрика") score += 0.2;
+    if (suggestion.term.length <= 6) score += 0.08;
+    if (suggestion.entryId === "economic_capital") score += 0.12;
+    return score;
   }
 
   function suggestForToken(token) {
@@ -202,6 +283,16 @@
         var score = similarity(token, cand);
         if (token.length >= 3 && cand.indexOf(token) >= 0) score = Math.max(score, 0.82);
         if (cand.indexOf(token) >= 0 && token.length >= 3) score = Math.max(score, 0.78);
+        if (
+          token.length >= 3 &&
+          token.length <= 6 &&
+          cand.length >= 3 &&
+          cand.length <= 6 &&
+          entry.category === "метрика"
+        ) {
+          score = Math.max(score, similarity(token, cand) + 0.05);
+        }
+        score = Math.min(1, score);
         if (!best || score > best.confidence) {
           best = {
             term: token,
@@ -215,6 +306,7 @@
     });
 
     if (!best || best.confidence < 0.55) return null;
+    if (isMorphologicalVariant(token) || isLikelyTypoOfKnown(token)) return null;
     return best;
   }
 
@@ -231,7 +323,7 @@
     });
 
     return out.sort(function (a, b) {
-      return b.confidence - a.confidence;
+      return clarifyScore(b) - clarifyScore(a);
     });
   }
 
@@ -259,6 +351,7 @@
     loadDictionary: loadDictionary,
     findUnclearTerms: findUnclearTerms,
     saveCustomSynonym: saveCustomSynonym,
+    canLearnSynonym: canLearnSynonym,
     getMergedDictionary: getMergedDictionary,
     loadCustomSynonyms: loadCustomSynonyms,
   };
