@@ -658,6 +658,129 @@ body {
   text-align: center;
 }
 
+.page-badge {
+  display: inline-block;
+  margin: 0 0 10px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--accent);
+  background: color-mix(in srgb, var(--accent) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--accent) 22%, transparent);
+}
+
+.panel-note {
+  margin: 28px 0 0;
+  padding: 16px 18px;
+  border-radius: var(--radius-sm);
+  font-size: 15px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--text) 4%, transparent);
+  border: 1px solid var(--line);
+  line-height: 1.45;
+}
+
+.panel-head strong {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.flow {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 0;
+  position: relative;
+}
+
+.flow__step {
+  display: grid;
+  grid-template-columns: 44px 1fr;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.flow__step:last-child {
+  border-bottom: 0;
+}
+
+.flow__num {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--accent);
+}
+
+.flow__step h3 {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+
+.flow__step p {
+  margin: 6px 0 0;
+  font-size: 15px;
+  color: var(--muted);
+  line-height: 1.45;
+  max-width: 52em;
+}
+
+.scenario-table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
+}
+
+.scenario-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 640px;
+}
+
+.scenario-table th,
+.scenario-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.scenario-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--text) 3%, transparent);
+}
+
+.scenario-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.scenario-table td:first-child {
+  font-weight: 600;
+  color: var(--text);
+  width: 32%;
+}
+
+.device--panel {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
 .page-title {
   margin: 0;
   font-size: clamp(36px, 5vw, 48px);

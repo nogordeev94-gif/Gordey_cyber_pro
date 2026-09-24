@@ -72,6 +72,8 @@
     });
   });
 
-  var initial = (location.hash || "#product").replace("#", "");
+  var initial = (location.hash || "#overview").replace("#", "");
+  if (initial === "product") initial = "overview";
+  if (initial === "features" || initial === "examples") initial = "scenarios";
   activate(initial, false);
 })();
