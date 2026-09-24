@@ -5,6 +5,7 @@
   var history = document.getElementById("log-history");
   var originalEl = document.getElementById("log-original");
   var normalizedEl = document.getElementById("log-normalized");
+  var note = document.getElementById("log-note");
 
   var logs = [];
   try {
@@ -20,6 +21,24 @@
   normalizedEl.textContent = latest.normalized;
   flow.hidden = false;
   empty.hidden = true;
+
+  if (note && latest.clarifications && latest.clarifications.length) {
+    note.hidden = false;
+    note.innerHTML = latest.clarifications
+      .map(function (c) {
+        if (c.accepted) {
+          return (
+            "Добавлено в словарь: <strong>" +
+            c.term +
+            "</strong> → <strong>" +
+            c.preferred +
+            "</strong>"
+          );
+        }
+        return "Не добавлено: «" + c.term + "» (пользователь ответил «нет»)";
+      })
+      .join("<br />");
+  }
 
   if (logs.length > 1) {
     history.hidden = false;

@@ -186,3 +186,72 @@
 .page-links a:hover {
   text-decoration: underline;
 }
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.clarify {
+  width: 100%;
+  margin-top: 20px;
+  padding: 18px 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
+  box-shadow: var(--shadow);
+  text-align: left;
+  animation: fade-in 0.35s ease;
+}
+
+.clarify__label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.clarify__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+}
+
+.clarify__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.clarify__btn {
+  min-width: 120px;
+}
+
+.clarify__btn--ghost {
+  color: var(--accent);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent);
+}
+
+.log-note {
+  margin-top: 16px;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm, 16px);
+  font-size: 14px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+  border: 1px solid var(--line);
+}
+
+.log-note strong {
+  color: var(--text);
+}

@@ -36,9 +36,15 @@
         <button class="ask__btn" type="submit">Спросить</button>
       </form>
 
-      <div class="answer" id="answer" hidden aria-live="polite">
-        <p class="answer__label">Ответ (превью)</p>
-        <p class="answer__text" id="answer-text"></p>
+      <div class="clarify" id="clarify" hidden aria-live="polite">
+        <p class="clarify__label">Satta уточняет</p>
+        <p class="clarify__text" id="clarify-text"></p>
+        <div class="clarify__actions">
+          <button class="ask__btn clarify__btn" type="button" id="clarify-yes">Да, верно</button>
+          <button class="ask__btn clarify__btn clarify__btn--ghost" type="button" id="clarify-no">
+            Нет
+          </button>
+        </div>
       </div>
     </main>
 
