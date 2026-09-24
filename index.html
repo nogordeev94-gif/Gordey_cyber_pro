@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f5f7" />
+    <title>T1 · Никита Гордеев</title>
+    <meta name="description" content="T1 — Никита Гордеев" />
+    <meta property="og:title" content="T1 · Никита Гордеев" />
+    <meta property="og:description" content="T1 — Никита Гордеев" />
+    <meta property="og:type" content="website" />
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <script>
+      (function () {
+        try {
+          var stored = localStorage.getItem("t1-theme");
+          var theme =
+            stored === "light" || stored === "dark"
+              ? stored
+              : window.matchMedia("(prefers-color-scheme: dark)").matches
+                ? "dark"
+                : "light";
+          document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {
+          document.documentElement.setAttribute("data-theme", "light");
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <a class="skip" href="#main">К содержимому</a>
+
+    <header class="nav" data-region="header">
+      <a class="brand" href="#top" aria-label="T1 — на главную">
+        <img src="assets/mark.svg" alt="" width="28" height="28" />
+        <span data-slot="brand-name">T1</span>
+      </a>
+      <nav class="nav-links" aria-label="Основное меню">
+        <a href="#about" data-slot="nav-1">О себе</a>
+        <a href="#work" data-slot="nav-2">Проекты</a>
+        <a href="#contact" data-slot="nav-3">Контакты</a>
+      </nav>
+      <button class="theme-toggle" type="button" aria-label="Переключить тему">
+        <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.7" />
+          <path
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.7"
+            stroke-linecap="round"
+            d="M12 3v1.6M12 19.4V21M3 12h1.6M19.4 12H21M5.6 5.6l1.1 1.1M17.3 17.3l1.1 1.1M5.6 18.4l1.1-1.1M17.3 6.7l1.1-1.1"
+          />
+        </svg>
+        <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            fill="currentColor"
+            d="M16.4 13.2A7 7 0 0 1 10.8 5a7.2 7 0 1 0 7.6 10.6 5.8 5.8 0 0 1-2-2.4z"
+          />
+        </svg>
+      </button>
+    </header>
+
+    <main id="main">
+      <section class="hero" id="top" data-region="hero">
+        <p class="eyebrow" data-slot="hero-eyebrow">T1</p>
+        <h1 data-slot="hero-title">Никита Гордеев</h1>
+        <p class="lede" data-slot="hero-lede">Здесь будет ваша надпись.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#contact" data-slot="hero-cta-primary">Связаться</a>
+          <a class="btn btn-secondary" href="#work" data-slot="hero-cta-secondary">Смотреть работы</a>
+        </div>
+      </section>
+
+      <section class="section" id="about" aria-labelledby="about-title" data-region="about">
+        <div class="section-inner">
+          <header class="section-head">
+            <h2 id="about-title" data-slot="about-title">О себе</h2>
+            <p class="section-kicker" data-slot="about-kicker">Короткий подзаголовок блока</p>
+          </header>
+          <div class="prose slot" data-slot="about-body">
+            <p>Текст о вас: кто вы, чем занимаетесь, чем полезны. Замените этот абзац.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section section-muted" id="work" aria-labelledby="work-title" data-region="work">
+        <div class="section-inner">
+          <header class="section-head">
+            <h2 id="work-title" data-slot="work-title">Проекты</h2>
+            <p class="section-kicker" data-slot="work-kicker">Три карточки — замените заголовки и описания</p>
+          </header>
+          <ul class="card-grid" role="list">
+            <li class="card slot">
+              <h3 data-slot="work-1-title">Проект 1</h3>
+              <p data-slot="work-1-text">Краткое описание первого проекта.</p>
+              <a class="card-link" href="#" data-slot="work-1-link">Подробнее</a>
+            </li>
+            <li class="card slot">
+              <h3 data-slot="work-2-title">Проект 2</h3>
+              <p data-slot="work-2-text">Краткое описание второго проекта.</p>
+              <a class="card-link" href="#" data-slot="work-2-link">Подробнее</a>
+            </li>
+            <li class="card slot">
+              <h3 data-slot="work-3-title">Проект 3</h3>
+              <p data-slot="work-3-text">Краткое описание третьего проекта.</p>
+              <a class="card-link" href="#" data-slot="work-3-link">Подробнее</a>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="section" id="contact" aria-labelledby="contact-title" data-region="contact">
+        <div class="section-inner contact-panel slot">
+          <header class="section-head">
+            <h2 id="contact-title" data-slot="contact-title">Контакты</h2>
+            <p class="section-kicker" data-slot="contact-kicker">Email, Telegram или форма — на ваш выбор</p>
+          </header>
+          <p class="contact-lead" data-slot="contact-lead">Напишите, как с вами связаться.</p>
+          <ul class="contact-list" role="list">
+            <li>
+              <span class="contact-label">Email</span>
+              <a href="mailto:you@example.com" data-slot="contact-email">you@example.com</a>
+            </li>
+            <li>
+              <span class="contact-label">Telegram</span>
+              <a href="https://t.me/username" data-slot="contact-telegram">@username</a>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer class="foot" data-region="footer">
+      <p>
+        <span data-slot="footer-line">© T1 · Никита Гордеев</span>
+      </p>
+    </footer>
+
+    <script src="theme.js"></script>
+  </body>
+</html>
