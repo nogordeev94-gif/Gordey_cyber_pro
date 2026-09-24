@@ -158,6 +158,14 @@
     "какое",
     "сколько",
     "почему",
+    "ты",
+    "вы",
+    "тебе",
+    "вас",
+    "он",
+    "она",
+    "они",
+    "мы",
     "покажи",
     "показать",
     "изменился",
@@ -650,6 +658,7 @@
 
         var part = words[wi];
         wi++;
+        part = part.replace(/^[«"']+|[»"']+$/g, "").replace(/[?!.,;:]+$/g, "");
         var pStart = original.indexOf(part, cursor);
         if (pStart < 0) pStart = cursor;
         var pEnd = pStart + part.length;
@@ -762,21 +771,63 @@
       ? global.SattaAttributeBridge.fromSynonymResult({ terms: terms })
       : null;
 
+    var status = resolveSynonymStatus(
+      clarification,
+      hasTypoOrMorph,
+      unknownTerms,
+      terms,
+      extracted_attributes
+    );
+
     var result = {
       original_query: original,
       normalized_query: normalized_query,
       terms: terms,
       extracted_attributes: extracted_attributes,
       unknown_terms: unknownTerms,
-      clarification_required: !!clarification,
+      clarification_required: status === "NEEDS_CONFIRMATION",
       clarification: clarification,
-      status: clarification
-        ? "NEEDS_CONFIRMATION"
-        : hasTypoOrMorph
-          ? "NORMALIZED"
-          : "MATCHED",
+      status: status,
     };
+    if (status === "OUT_OF_SCOPE") {
+      result.clarification = {
+        question:
+          "Запрос не распознан как вопрос по бизнес-метрикам. Сформулируйте вопрос по экономическому капиталу, портфелю или периоду.",
+        original_term: unknownTerms[0] || original,
+      };
+    }
     return result;
+  }
+
+  function hasBusinessSignals(terms, extracted) {
+    if (extracted) {
+      if (extracted.dates && extracted.dates.length) return true;
+      if (extracted.periods && extracted.periods.length) return true;
+      if (extracted.business_terms && extracted.business_terms.length) return true;
+      if (extracted.metrics && extracted.metrics.length) return true;
+      if (extracted.entity_values && extracted.entity_values.length) return true;
+    }
+    return (terms || []).some(function (t) {
+      return (
+        t.type === "BUSINESS_TERM" ||
+        t.type === "BUSINESS_TERM_SYNONYM" ||
+        t.type === "TYPO" ||
+        t.type === "DATE" ||
+        t.type === "PERIOD" ||
+        t.type === "ENTITY_VALUE"
+      );
+    });
+  }
+
+  function resolveSynonymStatus(clarification, hasTypoOrMorph, unknownTerms, terms, extracted) {
+    if (clarification) return "NEEDS_CONFIRMATION";
+    if (!hasBusinessSignals(terms, extracted)) {
+      if (unknownTerms.length || !(terms && terms.length)) {
+        return "OUT_OF_SCOPE";
+      }
+    }
+    if (hasTypoOrMorph) return "NORMALIZED";
+    return "MATCHED";
   }
 
   function analyzeQueryAsync(text) {

@@ -42,6 +42,16 @@
   function finishSynonymPhase(question) {
     var analysis = SattaSynonymAgent.analyzeQuery(question);
 
+    if (analysis.status === "OUT_OF_SCOPE") {
+      pendingClarification = { outOfScope: true };
+      showClarify(
+        analysis.clarification && analysis.clarification.question
+          ? analysis.clarification.question
+          : "Запрос не относится к бизнес-метрикам."
+      );
+      return;
+    }
+
     if (analysis.status === "NEEDS_CONFIRMATION") {
       var c = analysis.clarification;
       if (c && rejectedTerms.has(String(c.original_term).toLowerCase())) {
@@ -83,7 +93,7 @@
   if (clarifyYes) {
     clarifyYes.addEventListener("click", function () {
       if (!pendingClarification || !pendingQuestion) return;
-      if (pendingClarification.unknown) {
+      if (pendingClarification.unknown || pendingClarification.outOfScope) {
         hideClarify();
         return;
       }

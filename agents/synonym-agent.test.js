@@ -54,4 +54,7 @@ Agent.loadDictionary("data/synonyms.json").then(function () {
   assert(q5.clarification_required, "капитал ambiguous");
 
   console.log("normalized sample:", q1.normalized_query);
+
+  var q7 = Agent.analyzeQuery("ты хуй?");
+  assert(q7.status === "OUT_OF_SCOPE", "off-topic not MATCHED");
 });
