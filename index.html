@@ -9,12 +9,6 @@
       name="description"
       content="Satta — пользовательский чат для бизнеса и анализа метрик на семантическом слое."
     />
-    <meta property="og:title" content="Satta · чат для бизнеса и метрик" />
-    <meta
-      property="og:description"
-      content="Задавайте вопросы на естественном языке: значения метрик, сравнения, драйверы изменений."
-    />
-    <meta property="og:type" content="website" />
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
     <script>
@@ -36,18 +30,20 @@
     </script>
   </head>
   <body>
-    <a class="skip" href="#main">К содержимому</a>
+    <a class="skip" href="#slide-1">К содержимому</a>
 
-    <header class="nav" data-region="header">
-      <a class="brand" href="#top" aria-label="Satta — на главную">
+    <header class="nav">
+      <a class="brand" href="#slide-1" aria-label="Satta — на главную">
         <img src="assets/mark.svg" alt="" width="28" height="28" />
         <span data-slot="brand-name">Satta</span>
       </a>
-      <nav class="nav-links" aria-label="Основное меню">
-        <a href="#about" data-slot="nav-1">Продукт</a>
-        <a href="#capabilities" data-slot="nav-2">Возможности</a>
-        <a href="#intents" data-slot="nav-3">Примеры вопросов</a>
-        <a href="#contact" data-slot="nav-4">Контакты</a>
+      <nav class="nav-links" aria-label="Слайды">
+        <a href="#slide-1" data-slide-link>Идея</a>
+        <a href="#slide-2" data-slide-link>Чат</a>
+        <a href="#slide-3" data-slide-link>Слой</a>
+        <a href="#slide-4" data-slide-link>Операции</a>
+        <a href="#slide-5" data-slide-link>Вопросы</a>
+        <a href="#slide-6" data-slide-link>Контакт</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Переключить тему">
         <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
@@ -69,150 +65,129 @@
       </button>
     </header>
 
-    <main id="main">
-      <section class="hero" id="top" data-region="hero">
-        <p class="eyebrow" data-slot="hero-eyebrow">Satta</p>
-        <h1 data-slot="hero-title">Пользовательский чат для бизнеса и&nbsp;анализа метрик</h1>
-        <p class="lede" data-slot="hero-lede">
-          Семантический слой понимает портфели, экономический капитал, сценарии и
-          драйверы — вы задаёте вопрос, система возвращает значение, сравнение или
-          объяснение с контекстом.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#intents" data-slot="hero-cta-primary">Примеры вопросов</a>
-          <a class="btn btn-secondary" href="#about" data-slot="hero-cta-secondary">Как это устроено</a>
-        </div>
+    <nav class="slide-rail" aria-label="Навигация по слайдам">
+      <a href="#slide-1" data-slide-link aria-label="Слайд 1"><span>1</span></a>
+      <a href="#slide-2" data-slide-link aria-label="Слайд 2"><span>2</span></a>
+      <a href="#slide-3" data-slide-link aria-label="Слайд 3"><span>3</span></a>
+      <a href="#slide-4" data-slide-link aria-label="Слайд 4"><span>4</span></a>
+      <a href="#slide-5" data-slide-link aria-label="Слайд 5"><span>5</span></a>
+      <a href="#slide-6" data-slide-link aria-label="Слайд 6"><span>6</span></a>
+    </nav>
 
-        <div class="chat-demo" aria-label="Демо интерфейса чата" data-slot="chat-demo">
-          <div class="chat-demo__bar">
-            <span class="chat-demo__dot"></span>
-            <span class="chat-demo__title">Satta · аналитический чат</span>
-          </div>
-          <div class="chat-demo__thread">
-            <div class="bubble bubble-user" data-slot="chat-q1">
-              Какой экономический капитал сейчас по портфелю «Корпоративный»?
-            </div>
-            <div class="bubble bubble-bot" data-slot="chat-a1">
-              <strong>ЭК = 12,4 млрд ₽</strong> на 24.09.2026 · методология v3.2 · сценарий
-              Base. Портфель: Корпоративный.
-            </div>
-            <div class="bubble bubble-user" data-slot="chat-q2">Почему вырос ЭК за месяц?</div>
-            <div class="bubble bubble-bot" data-slot="chat-a2">
-              Рост +8,2%: объём сделок +4,1 п.п., смена микса портфеля +2,3 п.п., рыночные
-              факторы +1,8 п.п. Ответ с evidence по семантическим операциям.
-            </div>
-          </div>
-          <p class="chat-demo__hint" data-slot="chat-hint">
-            Демо-диалог. Тексты и цифры можно заменить в разметке.
+    <main class="deck" id="main">
+      <section class="slide" id="slide-1" data-slide="1" aria-labelledby="s1-title">
+        <div class="slide-inner slide-inner--center">
+          <p class="slide-label" data-slot="s1-label">Слайд 1 · Продукт</p>
+          <h1 id="s1-title" data-slot="hero-title">
+            Пользовательский чат для бизнеса и&nbsp;анализа метрик
+          </h1>
+          <p class="slide-lede" data-slot="hero-lede">
+            Satta переводит вопросы руководителя и аналитика в проверяемые ответы по
+            метрикам — без ручных выгрузок и «магии» модели.
           </p>
+          <a class="btn btn-primary" href="#slide-2">Смотреть диалог</a>
         </div>
       </section>
 
-      <section class="section" id="about" aria-labelledby="about-title" data-region="about">
-        <div class="section-inner">
-          <header class="section-head">
-            <h2 id="about-title" data-slot="about-title">Семантический слой под чат</h2>
-            <p class="section-kicker" data-slot="about-kicker">
-              Модель из <code>semantic_layer_EK_v2</code>: сущности, атрибуты, связи и
-              операции — единый язык для LLM и аналитики
-            </p>
-          </header>
-          <div class="prose" data-slot="about-body">
-            <p>
-              Satta не «угадывает» метрики: запросы маппятся на контракты
-              <em>SemanticOperation</em> — получить значение, сравнить периоды, объяснить
-              изменение, найти драйверы, декомпозировать вклад факторов. Бизнес-правила
-              проверяют сопоставимость периодов, методологий и сценариев до ответа.
-            </p>
+      <section class="slide slide-muted" id="slide-2" data-slide="2" aria-labelledby="s2-title">
+        <div class="slide-inner">
+          <p class="slide-label" data-slot="s2-label">Слайд 2 · Диалог</p>
+          <h2 id="s2-title" data-slot="s2-title">Как это выглядит в чате</h2>
+          <p class="slide-kicker" data-slot="s2-kicker">
+            Вопрос на естественном языке → значение, контекст, объяснение изменения
+          </p>
+          <div class="chat-demo" aria-label="Демо чата" data-slot="chat-demo">
+            <div class="chat-demo__bar">
+              <span class="chat-demo__dot"></span>
+              <span class="chat-demo__title">Satta · аналитический чат</span>
+            </div>
+            <div class="chat-demo__thread">
+              <div class="bubble bubble-user" data-slot="chat-q1">
+                Какой экономический капитал сейчас по портфелю «Корпоративный»?
+              </div>
+              <div class="bubble bubble-bot" data-slot="chat-a1">
+                <strong>ЭК = 12,4 млрд ₽</strong> · 24.09.2026 · методология v3.2 · сценарий
+                Base
+              </div>
+              <div class="bubble bubble-user" data-slot="chat-q2">Почему вырос ЭК за месяц?</div>
+              <div class="bubble bubble-bot" data-slot="chat-a2">
+                +8,2%: объём +4,1 п.п., микс портфеля +2,3 п.п., рынок +1,8 п.п.
+              </div>
+            </div>
           </div>
-          <ul class="tag-grid" role="list" aria-label="Ключевые сущности слоя">
-            <li class="tag" data-slot="entity-1">Экономический капитал</li>
-            <li class="tag" data-slot="entity-2">Портфель</li>
-            <li class="tag" data-slot="entity-3">Тип риска</li>
-            <li class="tag" data-slot="entity-4">Сделка · Клиент · Продукт</li>
-            <li class="tag" data-slot="entity-5">Сценарий · Методология</li>
-            <li class="tag" data-slot="entity-6">Фактор риска · Вклад фактора</li>
+        </div>
+      </section>
+
+      <section class="slide" id="slide-3" data-slide="3" aria-labelledby="s3-title">
+        <div class="slide-inner">
+          <p class="slide-label" data-slot="s3-label">Слайд 3 · Семантика</p>
+          <h2 id="s3-title" data-slot="about-title">Единый слой смысла</h2>
+          <p class="slide-kicker" data-slot="about-kicker">
+            <code>semantic_layer_EK_v2</code> — сущности, атрибуты, связи, mapping к данным
+          </p>
+          <p class="slide-text" data-slot="about-body">
+            Экономический капитал связан с портфелем, типом риска, сценарием и
+            методологией. LLM опирается на контракты, а не на свободную генерацию цифр.
+          </p>
+          <ul class="tag-grid" role="list">
+            <li class="tag" data-slot="entity-1">ЭК и компоненты</li>
+            <li class="tag" data-slot="entity-2">Портфель · Сделка</li>
+            <li class="tag" data-slot="entity-3">Клиент · Продукт</li>
+            <li class="tag" data-slot="entity-4">Тип риска · Фактор</li>
+            <li class="tag" data-slot="entity-5">Период · Сценарий</li>
+            <li class="tag" data-slot="entity-6">Правила · Mapping</li>
           </ul>
         </div>
       </section>
 
-      <section
-        class="section section-muted"
-        id="capabilities"
-        aria-labelledby="capabilities-title"
-        data-region="capabilities"
-      >
-        <div class="section-inner">
-          <header class="section-head">
-            <h2 id="capabilities-title" data-slot="work-title">Что умеет чат</h2>
-            <p class="section-kicker" data-slot="work-kicker">
-              Операции семантического слоя — готовые сценарии для пользователя
-            </p>
-          </header>
-          <ul class="card-grid" role="list">
+      <section class="slide slide-muted" id="slide-4" data-slide="4" aria-labelledby="s4-title">
+        <div class="slide-inner">
+          <p class="slide-label" data-slot="s4-label">Слайд 4 · Операции</p>
+          <h2 id="s4-title" data-slot="work-title">Что делает система под капотом</h2>
+          <ul class="card-grid card-grid--slides" role="list">
             <li class="card">
-              <h3 data-slot="work-1-title">Значение и сравнение</h3>
-              <p data-slot="work-1-text">
-                GetMetricValue, ComparePeriods — текущее значение ЭК, абсолютное и
-                относительное изменение между датами и срезами.
-              </p>
+              <h3 data-slot="work-1-title">Получить и сравнить</h3>
+              <p data-slot="work-1-text">GetMetricValue · ComparePeriods</p>
             </li>
             <li class="card">
-              <h3 data-slot="work-2-title">Объяснение и драйверы</h3>
-              <p data-slot="work-2-text">
-                ExplainChange, FindDrivers, Decompose — почему метрика сдвинулась, какие
-                факторы (объём, микс, параметры риска, рынок) дали вклад.
-              </p>
+              <h3 data-slot="work-2-title">Объяснить и разложить</h3>
+              <p data-slot="work-2-text">ExplainChange · FindDrivers · Decompose</p>
             </li>
             <li class="card">
-              <h3 data-slot="work-3-title">Контроль и аналитика</h3>
+              <h3 data-slot="work-3-title">Проверить и предупредить</h3>
               <p data-slot="work-3-text">
-                CheckComparability, DetectAnomaly, PortfolioContribution — можно ли
-                сравнивать, есть ли выброс во времени, как дочерний портфель влияет на
-                родительский.
+                CheckComparability · DetectAnomaly · PortfolioContribution
               </p>
             </li>
           </ul>
         </div>
       </section>
 
-      <section class="section" id="intents" aria-labelledby="intents-title" data-region="intents">
-        <div class="section-inner">
-          <header class="section-head">
-            <h2 id="intents-title" data-slot="intents-title">Примеры вопросов (LLM Intents)</h2>
-            <p class="section-kicker" data-slot="intents-kicker">
-              Формулировки из слоя — замените или дополните под свой бизнес
-            </p>
-          </header>
-          <ol class="intent-list">
+      <section class="slide" id="slide-5" data-slide="5" aria-labelledby="s5-title">
+        <div class="slide-inner">
+          <p class="slide-label" data-slot="s5-label">Слайд 5 · Вопросы</p>
+          <h2 id="s5-title" data-slot="intents-title">Типовые запросы пользователя</h2>
+          <p class="slide-kicker" data-slot="intents-kicker">LLM Intents — замените формулировки под свой бизнес</p>
+          <ul class="intent-grid" role="list">
             <li data-slot="intent-1">Какой ЭК сейчас?</li>
             <li data-slot="intent-2">Как изменился ЭК за месяц?</li>
             <li data-slot="intent-3">Почему вырос ЭК?</li>
-            <li data-slot="intent-4">Какие факторы сильнее всего повлияли на рост ЭК?</li>
-            <li data-slot="intent-5">Какой вклад дал дочерний портфель?</li>
-            <li data-slot="intent-6">Сравни два портфеля за период</li>
-            <li data-slot="intent-7">Как вела себя метрика во времени?</li>
-            <li data-slot="intent-8">Есть ли аномалии в динамике?</li>
-            <li data-slot="intent-9">Можно ли сравнить эти два состояния?</li>
-            <li data-slot="intent-10">Разложи изменение по факторам</li>
-            <li data-slot="intent-11">Какой тип риска дал вклад в ЭК?</li>
-            <li data-slot="intent-12">Что будет с ЭК при изменении сценария?</li>
-          </ol>
+            <li data-slot="intent-4">Какие факторы дали вклад?</li>
+            <li data-slot="intent-5">Сравни два портфеля</li>
+            <li data-slot="intent-6">Есть ли аномалии?</li>
+          </ul>
         </div>
       </section>
 
-      <section class="section section-muted" id="contact" aria-labelledby="contact-title" data-region="contact">
-        <div class="section-inner contact-panel">
-          <header class="section-head">
-            <h2 id="contact-title" data-slot="contact-title">Контакты и пилот</h2>
-            <p class="section-kicker" data-slot="contact-kicker">
-              Подключение вашего semantic layer и mapping к чату Satta
-            </p>
-          </header>
-          <p class="contact-lead" data-slot="contact-lead">
-            Замените контакты на свои — блок готов к наполнению.
+      <section class="slide slide-muted" id="slide-6" data-slide="6" aria-labelledby="s6-title">
+        <div class="slide-inner slide-inner--center">
+          <p class="slide-label" data-slot="s6-label">Слайд 6 · Контакт</p>
+          <h2 id="s6-title" data-slot="contact-title">Пилот и подключение слоя</h2>
+          <p class="slide-text" data-slot="contact-lead">
+            Подставьте свои контакты — тексты слайдов правятся через <code>data-slot</code> в
+            HTML.
           </p>
-          <ul class="contact-list" role="list">
+          <ul class="contact-list contact-list--inline" role="list">
             <li>
               <span class="contact-label">Email</span>
               <a href="mailto:you@example.com" data-slot="contact-email">you@example.com</a>
@@ -222,16 +197,12 @@
               <a href="https://t.me/username" data-slot="contact-telegram">@username</a>
             </li>
           </ul>
+          <p class="foot-inline" data-slot="footer-line">© Satta · семантический чат для метрик</p>
         </div>
       </section>
     </main>
 
-    <footer class="foot" data-region="footer">
-      <p>
-        <span data-slot="footer-line">© Satta · семантический чат для метрик</span>
-      </p>
-    </footer>
-
     <script src="theme.js"></script>
+    <script src="slides.js"></script>
   </body>
 </html>
