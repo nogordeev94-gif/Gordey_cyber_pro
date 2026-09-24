@@ -72,7 +72,11 @@
     }
 
     if (sq.time) {
-      where.push("f.date BETWEEN '" + sq.time.from + "' AND '" + sq.time.to + "'");
+      if (sq.time.type === "as_of" || sq.time.from === sq.time.to) {
+        where.push("f.date = '" + sq.time.from + "'");
+      } else {
+        where.push("f.date BETWEEN '" + sq.time.from + "' AND '" + sq.time.to + "'");
+      }
     }
 
     if (joins.length) lines.push(joins.join("\n"));
@@ -80,6 +84,21 @@
     lines.push("ORDER BY f.date, f.portfolio_name;");
 
     return lines.join("\n");
+  }
+
+  function buildAppliedFilters(semanticResult) {
+    var sq = semanticResult.semantic_query || {};
+    var filters = { scenario: "Base" };
+    if (sq.time) {
+      filters.date =
+        sq.time.type === "as_of" || sq.time.from === sq.time.to
+          ? sq.time.from
+          : sq.time.from + ".." + sq.time.to;
+    }
+    (sq.dimensions || []).forEach(function (d) {
+      if (d.attribute) filters[d.attribute] = d.value;
+    });
+    return filters;
   }
 
   function formatMoney(n) {
@@ -110,12 +129,23 @@
     }
 
     if (sq.time) {
-      rows = rows.filter(function (r) {
-        return r.date >= sq.time.from && r.date <= sq.time.to;
-      });
+      if (sq.time.type === "as_of" || sq.time.from === sq.time.to) {
+        rows = rows.filter(function (r) {
+          return r.date === sq.time.from;
+        });
+      } else {
+        rows = rows.filter(function (r) {
+          return r.date >= sq.time.from && r.date <= sq.time.to;
+        });
+      }
     }
 
-    var result = { rows: rows, aggregates: {}, drivers: [] };
+    var result = {
+      rows: rows,
+      aggregates: {},
+      drivers: [],
+      applied_filters: buildAppliedFilters(semanticResult),
+    };
     var ops = sq.operation_chain || [sq.operation];
 
     if (ops.indexOf("analyze_dynamics") >= 0 || ops.indexOf("compare") >= 0) {
@@ -147,13 +177,20 @@
     }
 
     if (ops.indexOf("compare_portfolios") >= 0) {
-      var june = rows.filter(function (r) {
-        return r.date === "2026-06-30";
+      var asOf = sq.time && sq.time.from ? sq.time.from : "2026-06-30";
+      var atDate = rows.filter(function (r) {
+        return r.date === asOf || (!sq.time && r.date === asOf);
       });
-      result.aggregates.compare = june.map(function (r) {
+      if (!atDate.length && rows.length) {
+        atDate = rows.filter(function (r) {
+          return r.date === rows[rows.length - 1].date;
+        });
+      }
+      result.aggregates.compare = atDate.map(function (r) {
         return {
           portfolio_name: r.portfolio_name,
           economic_capital: r.economic_capital,
+          date: r.date,
         };
       });
     }
@@ -185,12 +222,14 @@
     }
 
     if (ops.indexOf("get_value") >= 0 && rows.length > 1) {
-      var latest = rows[rows.length - 1];
-      result.aggregates.latest = {
-        date: latest.date,
-        portfolio_name: latest.portfolio_name,
-        economic_capital: latest.economic_capital,
-      };
+      result.aggregates.by_portfolio = rows.map(function (r) {
+        return {
+          date: r.date,
+          portfolio_name: r.portfolio_name,
+          economic_capital: r.economic_capital,
+        };
+      });
+      result.aggregates.latest = result.aggregates.by_portfolio[0];
     }
 
     return result;
@@ -204,13 +243,24 @@
     if (ops.indexOf("compare_portfolios") >= 0 && execution.aggregates.compare) {
       execution.aggregates.compare.forEach(function (item) {
         parts.push(
-          item.portfolio_name + ": " + formatMoney(item.economic_capital) + " (на 2026-06-30)"
+          item.portfolio_name + ": " + formatMoney(item.economic_capital) + " (на " + item.date + ")"
         );
       });
       return "Сравнение экономического капитала по портфелям (демо-данные):\n" + parts.join("\n");
     }
 
-    if (execution.aggregates.latest) {
+    if (execution.aggregates.by_portfolio) {
+      execution.aggregates.by_portfolio.forEach(function (l) {
+        parts.push(
+          "Экономический капитал (" +
+            l.portfolio_name +
+            ", " +
+            l.date +
+            "): " +
+            formatMoney(l.economic_capital)
+        );
+      });
+    } else if (execution.aggregates.latest) {
       var l = execution.aggregates.latest;
       parts.push(
         "Экономический капитал (" +
@@ -219,6 +269,14 @@
           l.date +
           "): " +
           formatMoney(l.economic_capital)
+      );
+    }
+
+    if (!execution.rows.length && sq.time) {
+      parts.push(
+        "По заданным фильтрам (дата: " +
+          (sq.time.from === sq.time.to ? sq.time.from : sq.time.from + " — " + sq.time.to) +
+          ") демо-витрина не вернула строк."
       );
     }
 
@@ -261,10 +319,12 @@
     var sql = buildSql(semanticResult);
     var execution = execute(semanticResult);
     var answer = buildFinalAnswer(semanticResult, execution);
+    var applied_filters = buildAppliedFilters(semanticResult);
     return {
       sql: sql,
       execution: execution,
       final_answer: answer,
+      applied_filters: applied_filters,
       mapping_version: MAPPING ? MAPPING.version : null,
     };
   }

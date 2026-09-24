@@ -31,24 +31,37 @@
   }
 
   function runAfterSynonym(userQuery, synonymResult) {
-    return SattaSemanticLayerAgent.load("data/").then(function () {
-      var semantic = SattaSemanticLayerAgent.analyze(synonymResult.normalized_query);
+    var Semantic = global.SattaSemanticLayerAgent;
+    var Sql = global.SattaSqlAgent;
+    return Semantic.load("data/").then(function () {
+      var semantic = Semantic.analyze(synonymResult.normalized_query, {
+        terms: synonymResult.terms,
+        extracted_attributes: synonymResult.extracted_attributes,
+      });
       if (semantic.status === "NEEDS_CLARIFICATION") {
         return {
           status: "NEEDS_CLARIFICATION",
           user_query: userQuery,
           ts: Date.now(),
           synonym: synonymResult,
+      normalized_query: synonymResult.normalized_query,
           semantic: semantic,
         };
       }
-      return SattaSqlAgent.load("data/").then(function () {
-        var sqlResult = SattaSqlAgent.run(semantic);
+      return Sql.load("data/").then(function () {
+        var sqlResult = Sql.run(semantic);
         var record = {
           status: "COMPLETE",
           user_query: userQuery,
           ts: Date.now(),
           synonym: synonymResult,
+          normalized_query: synonymResult.normalized_query,
+          attribute_trace: {
+            synonym: synonymResult.extracted_attributes,
+            semantic_time: semantic.semantic_query && semantic.semantic_query.time,
+            evidence: semantic.evidence_requirements,
+            sql_filters: sqlResult.applied_filters,
+          },
           semantic: semantic,
           sql: sqlResult,
           final_answer: sqlResult.final_answer,

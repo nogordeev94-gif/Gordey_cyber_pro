@@ -15,6 +15,17 @@
     return esc(JSON.stringify(obj, null, 2));
   }
 
+  function attrBox(label, obj) {
+    if (!obj || (typeof obj === "object" && !Object.keys(obj).length)) return "";
+    return (
+      "<p class='pipe-meta'><strong>" +
+      esc(label) +
+      "</strong></p><pre class='pipe-json'>" +
+      preJson(obj) +
+      "</pre>"
+    );
+  }
+
   function step(title, bodyHtml) {
     return (
       '<section class="pipe-step">' +
@@ -64,7 +75,8 @@
         "</ul>" +
         (syn.clarification
           ? "<p class='pipe-note'>" + esc(syn.clarification.question || "") + "</p>"
-          : "")
+          : "") +
+        attrBox("Важные атрибуты (Synonym)", syn.extracted_attributes)
     );
 
     if (record.status === "NEEDS_CLARIFICATION" && record.semantic) {
@@ -104,9 +116,14 @@
             .join(", ") || "—"
         ) +
         "</dd>" +
-        "<dt>Period</dt><dd>" +
-        esc((ui.time && ui.time.label) || "—") +
+        "<dt>Period / Date</dt><dd>" +
+        esc(
+          (ui.time && (ui.time.label || ui.time.from)) ||
+            (sem.semantic_query && sem.semantic_query.time && sem.semantic_query.time.from) ||
+            "—"
+        ) +
         "</dd>" +
+        attrBox("Унаследовано от Synonym", ui.inherited_attributes || sem.inherited_attributes) +
         "<dt>Required entities</dt><dd>" +
         esc((ui.required_entities || []).join(", ")) +
         "</dd>" +
@@ -125,17 +142,22 @@
     );
 
     var sql = record.sql || {};
+    var trace = record.attribute_trace || {};
     html += step(
       "STEP 5 — SQL Agent",
       "<pre class='pipe-sql'>" + esc(sql.sql) + "</pre>" +
         "<p class='pipe-meta'>mapping: " +
         esc(sql.mapping_version) +
-        "</p>"
+        "</p>" +
+        attrBox("Фильтры SQL", sql.applied_filters || trace.sql_filters)
     );
 
     html += step(
       "STEP 6 — Execution",
-      "<pre class='pipe-json'>" + preJson(sql.execution) + "</pre>"
+      attrBox("Применённые фильтры", sql.execution && sql.execution.applied_filters) +
+        "<pre class='pipe-json'>" +
+        preJson(sql.execution) +
+        "</pre>"
     );
 
     html += step(

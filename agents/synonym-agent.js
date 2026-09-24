@@ -758,10 +758,15 @@
       return t.match_type === "typo" || t.match_type === "morphology";
     });
 
+    var extracted_attributes = global.SattaAttributeBridge
+      ? global.SattaAttributeBridge.fromSynonymResult({ terms: terms })
+      : null;
+
     var result = {
       original_query: original,
       normalized_query: normalized_query,
       terms: terms,
+      extracted_attributes: extracted_attributes,
       unknown_terms: unknownTerms,
       clarification_required: !!clarification,
       clarification: clarification,

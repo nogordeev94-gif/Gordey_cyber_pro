@@ -28,8 +28,38 @@
       t.indexOf("экономический капитал") >= 0 ||
       t.indexOf("economic capital") >= 0 ||
       t.indexOf("эк ") >= 0 ||
+      t.indexOf("екап") >= 0 ||
+      t.indexOf("экап") >= 0 ||
       /\bэк\b/.test(t)
     );
+  }
+
+  function resolveTime(text, synonymContext) {
+    var time = detectTime(text);
+    if (time) return time;
+    if (global.SattaAttributeBridge && synonymContext && synonymContext.extracted_attributes) {
+      time = global.SattaAttributeBridge.timeFromAttributes(synonymContext.extracted_attributes);
+    }
+    return time;
+  }
+
+  function mergeDimensions(text, synonymContext) {
+    var dimensions = detectPortfolioFilters(text);
+    var attrs = synonymContext && synonymContext.extracted_attributes;
+    if (attrs && attrs.entity_values) {
+      attrs.entity_values.forEach(function (ev) {
+        if (ev.entityId === "Portfolio" || (ev.meta && ev.meta.entity === "Portfolio")) {
+          dimensions.push({
+            entity: "Portfolio",
+            attribute: "portfolio_type",
+            value: ev.normalized,
+            label: ev.original,
+            source: "synonym_agent",
+          });
+        }
+      });
+    }
+    return dimensions;
   }
 
   function detectPortfolioFilters(text) {
@@ -116,9 +146,10 @@
     return "Получение значения метрики";
   }
 
-  function analyze(normalizedQuery) {
+  function analyze(normalizedQuery, synonymContext) {
     var text = String(normalizedQuery || "");
     var t = lower(text);
+    synonymContext = synonymContext || {};
 
     if (t.indexOf("капитал") >= 0 && !hasEc(text)) {
       return {
@@ -133,9 +164,13 @@
 
 
     var operations = detectOperations(text);
-    var dimensions = detectPortfolioFilters(text);
-    var time = detectTime(text);
+    var dimensions = mergeDimensions(text, synonymContext);
+    var time = resolveTime(text, synonymContext);
     var primaryOp = operations[0] || "get_value";
+    var inherited =
+      global.SattaAttributeBridge && synonymContext.extracted_attributes
+        ? global.SattaAttributeBridge.summarize(synonymContext.extracted_attributes)
+        : {};
 
     var semanticQuery = {
       operation: primaryOp,
@@ -181,13 +216,15 @@
         source: "economic_capital_fact",
         period: time ? time.label : "latest",
         methodology_version: "v3.2",
-        calculation_date: time ? time.to : "2026-06-30",
+        calculation_date: time ? (time.type === "as_of" ? time.from : time.to) : "latest",
       },
+      inherited_attributes: inherited,
       ui: {
         operation: primaryOp,
         entity: "EconomicCapital",
         dimensions: dimensions,
         time: time,
+        inherited_attributes: inherited,
         required_entities: uniq(
           ["EconomicCapital"].concat(
             operations.indexOf("decompose") >= 0 ? ["EconomicCapitalChange", "FactorContribution", "RiskFactor"] : []

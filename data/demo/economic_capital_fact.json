@@ -1,5 +1,23 @@
 [
   {
+    "date": "2025-12-31",
+    "portfolio_id": "P_CORP",
+    "portfolio_name": "Корпоративный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 1228000000
+  },
+  {
+    "date": "2025-12-31",
+    "portfolio_id": "P_RET",
+    "portfolio_name": "Розничный",
+    "risk_type": "Credit",
+    "scenario": "Base",
+    "methodology_version": "v3.2",
+    "economic_capital": 798000000
+  },
+  {
     "date": "2026-05-31",
     "portfolio_id": "P_CORP",
     "portfolio_name": "Корпоративный",
