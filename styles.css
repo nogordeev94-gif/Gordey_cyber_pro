@@ -46,7 +46,6 @@ body {
 
 .top {
   padding: 20px 24px;
-  text-align: center;
 }
 
 .top__brand {
@@ -54,6 +53,11 @@ body {
   font-weight: 600;
   letter-spacing: -0.03em;
   color: var(--accent);
+}
+
+.top__nav {
+  display: flex;
+  gap: 16px;
 }
 
 .page {

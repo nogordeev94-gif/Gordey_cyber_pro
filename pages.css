@@ -1,0 +1,188 @@
+.top--row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 960px;
+  margin-inline: auto;
+}
+
+.top__brand {
+  text-decoration: none;
+  color: var(--accent);
+}
+
+.top__link {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--muted);
+  text-decoration: none;
+}
+
+.top__link:hover {
+  color: var(--accent);
+}
+
+.page--wide {
+  max-width: 920px;
+  justify-content: flex-start;
+  padding-top: 32px;
+  text-align: left;
+}
+
+.page--wide .title {
+  margin-bottom: 12px;
+}
+
+.panel__lead {
+  margin: 0 0 20px;
+  color: var(--muted);
+  font-size: 17px;
+}
+
+.meta-link {
+  margin: 0 0 20px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.meta-link a {
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.table-wrap {
+  overflow-x: auto;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.data-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  min-width: 640px;
+}
+
+.data-table th,
+.data-table td {
+  padding: 14px 16px;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+}
+
+.data-table th {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--accent) 6%, var(--surface));
+}
+
+.data-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.data-table td:first-child {
+  font-weight: 600;
+  width: 28%;
+}
+
+.log-flow {
+  display: grid;
+  gap: 12px;
+  align-items: stretch;
+}
+
+@media (min-width: 720px) {
+  .log-flow {
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+  }
+}
+
+.log-card {
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+}
+
+.log-card--accent {
+  border-color: color-mix(in srgb, var(--accent) 35%, var(--line));
+  background: color-mix(in srgb, var(--accent) 5%, var(--surface));
+}
+
+.log-card__label {
+  margin: 0 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.log-card__text {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.log-arrow {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 300;
+  color: var(--accent);
+}
+
+.empty {
+  padding: 20px;
+  border-radius: var(--radius);
+  background: var(--surface);
+  border: 1px dashed var(--line);
+  color: var(--muted);
+}
+
+.empty a {
+  color: var(--accent);
+}
+
+.log-history {
+  margin: 28px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.log-history li {
+  padding: 12px 14px;
+  border-radius: var(--radius-sm, 16px);
+  font-size: 13px;
+  color: var(--muted);
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+.page-links {
+  margin-top: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  justify-content: center;
+}
+
+.page-links a {
+  font-size: 14px;
+  color: var(--accent);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.page-links a:hover {
+  text-decoration: underline;
+}

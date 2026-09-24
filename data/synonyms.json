@@ -1,0 +1,290 @@
+[
+  {
+    "id": "economic_capital",
+    "category": "метрика",
+    "preferred": "экономический капитал",
+    "synonyms": [
+      "эк",
+      "э.к.",
+      "экон капитал",
+      "эконом капитал",
+      "эконом. капитал",
+      "экономический кап.",
+      "economic capital",
+      "ec",
+      "econ capital"
+    ]
+  },
+  {
+    "id": "economic_capital_component",
+    "category": "метрика",
+    "preferred": "компонент экономического капитала",
+    "synonyms": [
+      "компонент эк",
+      "компоненты эк",
+      "компонент эконом капитала",
+      "economic capital component",
+      "ec component",
+      "capital component"
+    ]
+  },
+  {
+    "id": "economic_capital_change",
+    "category": "метрика",
+    "preferred": "изменение экономического капитала",
+    "synonyms": [
+      "изменение эк",
+      "дельта эк",
+      "economic capital change",
+      "ec change"
+    ]
+  },
+  {
+    "id": "portfolio",
+    "category": "срез",
+    "preferred": "портфель",
+    "synonyms": ["портфели", "portfolio", "portfolios", "портф."]
+  },
+  {
+    "id": "risk_type",
+    "category": "срез",
+    "preferred": "тип риска",
+    "synonyms": [
+      "вид риска",
+      "типы риска",
+      "risk type",
+      "risk types",
+      "тип рисков"
+    ]
+  },
+  {
+    "id": "deal",
+    "category": "срез",
+    "preferred": "сделка",
+    "synonyms": ["сделки", "deal", "deals", "транзакция", "транзакции"]
+  },
+  {
+    "id": "client",
+    "category": "срез",
+    "preferred": "клиент",
+    "synonyms": ["клиенты", "client", "clients", "контрагент", "контрагенты"]
+  },
+  {
+    "id": "product",
+    "category": "срез",
+    "preferred": "продукт",
+    "synonyms": ["продукты", "product", "products"]
+  },
+  {
+    "id": "client_segment",
+    "category": "срез",
+    "preferred": "сегмент клиентов",
+    "synonyms": [
+      "сегмент",
+      "сегменты",
+      "client segment",
+      "customer segment",
+      "сегмент клиента"
+    ]
+  },
+  {
+    "id": "currency",
+    "category": "срез",
+    "preferred": "валюта",
+    "synonyms": ["валюты", "currency", "currencies", "валютный срез"]
+  },
+  {
+    "id": "calculation_date",
+    "category": "время",
+    "preferred": "дата расчёта",
+    "synonyms": [
+      "дата расчета",
+      "as of date",
+      "calculation date",
+      "на дату",
+      "отчётная дата",
+      "отчетная дата"
+    ]
+  },
+  {
+    "id": "reporting_period",
+    "category": "время",
+    "preferred": "отчётный период",
+    "synonyms": [
+      "отчетный период",
+      "reporting period",
+      "reporting period",
+      "period"
+    ]
+  },
+  {
+    "id": "scenario",
+    "category": "срез",
+    "preferred": "сценарий",
+    "synonyms": ["сценарии", "scenario", "scenarios", "stress scenario", "базовый сценарий"]
+  },
+  {
+    "id": "methodology",
+    "category": "методология",
+    "preferred": "методология",
+    "synonyms": [
+      "методология расчёта",
+      "методология расчета",
+      "methodology",
+      "методика",
+      "версия методологии",
+      "methodology version"
+    ]
+  },
+  {
+    "id": "risk_factor",
+    "category": "фактор",
+    "preferred": "фактор риска",
+    "synonyms": [
+      "фактор",
+      "факторы",
+      "risk factor",
+      "risk factors",
+      "драйвер",
+      "драйверы"
+    ]
+  },
+  {
+    "id": "factor_contribution",
+    "category": "фактор",
+    "preferred": "вклад фактора",
+    "synonyms": [
+      "вклад",
+      "contribution",
+      "factor contribution",
+      "вклад в изменение",
+      "декомпозиция"
+    ]
+  },
+  {
+    "id": "volume_change",
+    "category": "фактор",
+    "preferred": "изменение объёма",
+    "synonyms": ["volume change", "объём", "объем", "volume", "изменение объема"]
+  },
+  {
+    "id": "portfolio_mix",
+    "category": "фактор",
+    "preferred": "изменение структуры портфеля",
+    "synonyms": ["portfolio mix", "микс портфеля", "структура портфеля", "portfolio mix change"]
+  },
+  {
+    "id": "risk_parameter_change",
+    "category": "фактор",
+    "preferred": "изменение параметров риска",
+    "synonyms": ["risk parameter change", "параметры риска", "risk parameters"]
+  },
+  {
+    "id": "market_factor_change",
+    "category": "фактор",
+    "preferred": "изменение рыночных факторов",
+    "synonyms": [
+      "market factor change",
+      "рыночные факторы",
+      "рынок",
+      "market factors"
+    ]
+  },
+  {
+    "id": "get_metric_value",
+    "category": "операция",
+    "preferred": "получить значение метрики",
+    "synonyms": ["get value", "getmetricvalue", "get metric value", "значение метрики"]
+  },
+  {
+    "id": "compare_periods",
+    "category": "операция",
+    "preferred": "сравнить периоды",
+    "synonyms": ["compare", "compare periods", "сравнение периодов"]
+  },
+  {
+    "id": "explain_change",
+    "category": "операция",
+    "preferred": "объяснить изменение",
+    "synonyms": [
+      "explain change",
+      "почему",
+      "причина",
+      "объясни",
+      "что произошло"
+    ]
+  },
+  {
+    "id": "find_drivers",
+    "category": "операция",
+    "preferred": "найти драйверы изменения",
+    "synonyms": [
+      "find drivers",
+      "драйверы",
+      "факторы влияния",
+      "что повлияло",
+      "главные факторы"
+    ]
+  },
+  {
+    "id": "decompose",
+    "category": "операция",
+    "preferred": "разложить изменение по факторам",
+    "synonyms": ["decompose", "decomposition", "разложи", "декомпозиция", "по факторам"]
+  },
+  {
+    "id": "compare_portfolios",
+    "category": "операция",
+    "preferred": "сравнить портфели",
+    "synonyms": ["compare portfolios", "сравни портфели", "сравнение портфелей"]
+  },
+  {
+    "id": "analyze_dynamics",
+    "category": "операция",
+    "preferred": "проанализировать динамику",
+    "synonyms": [
+      "analyze dynamics",
+      "dynamics",
+      "во времени",
+      "тренд",
+      "динамика метрики"
+    ]
+  },
+  {
+    "id": "detect_anomaly",
+    "category": "операция",
+    "preferred": "обнаружить аномалию",
+    "synonyms": [
+      "detect anomaly",
+      "anomaly",
+      "аномалия",
+      "аномалии",
+      "выброс",
+      "подозрительное"
+    ]
+  },
+  {
+    "id": "check_comparability",
+    "category": "операция",
+    "preferred": "проверить сопоставимость",
+    "synonyms": [
+      "check comparability",
+      "comparability",
+      "можно ли сравнить",
+      "сопоставимость",
+      "сравнимо"
+    ]
+  },
+  {
+    "id": "analyze_contribution",
+    "category": "операция",
+    "preferred": "проанализировать вклад",
+    "synonyms": [
+      "analyze contribution",
+      "portfolio contribution",
+      "risk contribution",
+      "вклад портфеля",
+      "вклад типа риска"
+    ]
+  }
+]

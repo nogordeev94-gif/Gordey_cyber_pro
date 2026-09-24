@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f4f9fd" />
+    <title>Satta — логи нормализации</title>
+    <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="pages.css" />
+  </head>
+  <body>
+    <header class="top top--row">
+      <a class="top__brand" href="index.html">Satta</a>
+      <a class="top__link" href="synonyms.html">Синонимы</a>
+    </header>
+
+    <main class="page page--wide">
+      <h1 class="title">Логи агента синонимов</h1>
+      <p class="panel__lead">Исходный вопрос и запрос после нормализации.</p>
+
+      <div class="log-flow" id="log-flow" hidden>
+        <div class="log-card">
+          <p class="log-card__label">Исходный вопрос</p>
+          <p class="log-card__text" id="log-original"></p>
+        </div>
+        <div class="log-arrow" aria-hidden="true">→</div>
+        <div class="log-card log-card--accent">
+          <p class="log-card__label">После агента</p>
+          <p class="log-card__text" id="log-normalized"></p>
+        </div>
+      </div>
+
+      <p class="empty" id="log-empty">Пока нет записей. Задайте вопрос на <a href="index.html">главной</a>.</p>
+
+      <ul class="log-history" id="log-history" hidden></ul>
+    </main>
+
+    <script src="logs-page.js"></script>
+  </body>
+</html>
