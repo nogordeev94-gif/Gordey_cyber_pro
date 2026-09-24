@@ -4,10 +4,10 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#f5f5f7" />
-    <title>Satta · чат для бизнеса и метрик</title>
+    <title>Satta — пользовательский чат для бизнеса</title>
     <meta
       name="description"
-      content="Satta — пользовательский чат для бизнеса и анализа метрик на семантическом слое."
+      content="Satta — чат для руководителей и аналитиков: метрики, сравнения и объяснения изменений простым языком."
     />
     <link rel="icon" href="assets/mark.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="styles.css" />
@@ -37,12 +37,12 @@
         <img src="assets/mark.svg" alt="" width="28" height="28" />
         <span data-slot="brand-name">Satta</span>
       </a>
-      <nav class="nav-links" aria-label="Слайды">
-        <a href="#slide-1" data-slide-link>Идея</a>
+      <nav class="nav-links" aria-label="Разделы">
+        <a href="#slide-1" data-slide-link>Satta</a>
         <a href="#slide-2" data-slide-link>Чат</a>
-        <a href="#slide-3" data-slide-link>Слой</a>
-        <a href="#slide-4" data-slide-link>Операции</a>
-        <a href="#slide-5" data-slide-link>Вопросы</a>
+        <a href="#slide-3" data-slide-link>Для кого</a>
+        <a href="#slide-4" data-slide-link>Возможности</a>
+        <a href="#slide-5" data-slide-link>Примеры</a>
         <a href="#slide-6" data-slide-link>Контакт</a>
       </nav>
       <button class="theme-toggle" type="button" aria-label="Переключить тему">
@@ -66,52 +66,56 @@
     </header>
 
     <nav class="slide-rail" aria-label="Навигация по слайдам">
-      <a href="#slide-1" data-slide-link aria-label="Слайд 1"><span>1</span></a>
-      <a href="#slide-2" data-slide-link aria-label="Слайд 2"><span>2</span></a>
-      <a href="#slide-3" data-slide-link aria-label="Слайд 3"><span>3</span></a>
-      <a href="#slide-4" data-slide-link aria-label="Слайд 4"><span>4</span></a>
-      <a href="#slide-5" data-slide-link aria-label="Слайд 5"><span>5</span></a>
-      <a href="#slide-6" data-slide-link aria-label="Слайд 6"><span>6</span></a>
+      <a href="#slide-1" data-slide-link aria-label="Satta"><span>1</span></a>
+      <a href="#slide-2" data-slide-link aria-label="Чат"><span>2</span></a>
+      <a href="#slide-3" data-slide-link aria-label="Для кого"><span>3</span></a>
+      <a href="#slide-4" data-slide-link aria-label="Возможности"><span>4</span></a>
+      <a href="#slide-5" data-slide-link aria-label="Примеры"><span>5</span></a>
+      <a href="#slide-6" data-slide-link aria-label="Контакт"><span>6</span></a>
     </nav>
 
     <main class="deck" id="main">
       <section class="slide" id="slide-1" data-slide="1" aria-labelledby="s1-title">
         <div class="slide-inner slide-inner--center">
-          <p class="slide-label" data-slot="s1-label">Слайд 1 · Продукт</p>
+          <p class="slide-label" data-slot="s1-label">Satta</p>
           <h1 id="s1-title" data-slot="hero-title">
             Пользовательский чат для бизнеса и&nbsp;анализа метрик
           </h1>
           <p class="slide-lede" data-slot="hero-lede">
-            Satta переводит вопросы руководителя и аналитика в проверяемые ответы по
-            метрикам — без ручных выгрузок и «магии» модели.
+            Спросите в чате — получите цифру, сравнение с прошлым периодом и понятное
+            объяснение, что изменилось. Без отчётов на десятки страниц и без ожидания
+            аналитика.
           </p>
-          <a class="btn btn-primary" href="#slide-2">Смотреть диалог</a>
+          <a class="btn btn-primary" href="#slide-2">Как выглядит чат</a>
         </div>
       </section>
 
       <section class="slide slide-muted" id="slide-2" data-slide="2" aria-labelledby="s2-title">
         <div class="slide-inner">
-          <p class="slide-label" data-slot="s2-label">Слайд 2 · Диалог</p>
-          <h2 id="s2-title" data-slot="s2-title">Как это выглядит в чате</h2>
+          <p class="slide-label" data-slot="s2-label">Пользовательский чат</p>
+          <h2 id="s2-title" data-slot="s2-title">Диалог вместо дашборда</h2>
           <p class="slide-kicker" data-slot="s2-kicker">
-            Вопрос на естественном языке → значение, контекст, объяснение изменения
+            Пишете как коллеге — Satta отвечает с контекстом: период, срез, сценарий
           </p>
-          <div class="chat-demo" aria-label="Демо чата" data-slot="chat-demo">
+          <div class="chat-demo" aria-label="Пример чата Satta" data-slot="chat-demo">
             <div class="chat-demo__bar">
               <span class="chat-demo__dot"></span>
-              <span class="chat-demo__title">Satta · аналитический чат</span>
+              <span class="chat-demo__title">Satta</span>
             </div>
             <div class="chat-demo__thread">
               <div class="bubble bubble-user" data-slot="chat-q1">
                 Какой экономический капитал сейчас по портфелю «Корпоративный»?
               </div>
               <div class="bubble bubble-bot" data-slot="chat-a1">
-                <strong>ЭК = 12,4 млрд ₽</strong> · 24.09.2026 · методология v3.2 · сценарий
-                Base
+                <strong>12,4 млрд ₽</strong> на сегодня. Портфель: Корпоративный. Учтены
+                актуальная методология и базовый сценарий.
               </div>
-              <div class="bubble bubble-user" data-slot="chat-q2">Почему вырос ЭК за месяц?</div>
+              <div class="bubble bubble-user" data-slot="chat-q2">
+                Почему вырос показатель за месяц?
+              </div>
               <div class="bubble bubble-bot" data-slot="chat-a2">
-                +8,2%: объём +4,1 п.п., микс портфеля +2,3 п.п., рынок +1,8 п.п.
+                Рост <strong>+8,2%</strong>: больше объёма сделок, смена структуры портфеля и
+                влияние рынка. Могу разложить по факторам подробнее.
               </div>
             </div>
           </div>
@@ -120,43 +124,51 @@
 
       <section class="slide" id="slide-3" data-slide="3" aria-labelledby="s3-title">
         <div class="slide-inner">
-          <p class="slide-label" data-slot="s3-label">Слайд 3 · Семантика</p>
-          <h2 id="s3-title" data-slot="about-title">Единый слой смысла</h2>
+          <p class="slide-label" data-slot="s3-label">Для кого</p>
+          <h2 id="s3-title" data-slot="about-title">Бизнесу — просто, аналитике — точно</h2>
           <p class="slide-kicker" data-slot="about-kicker">
-            <code>semantic_layer_EK_v2</code> — сущности, атрибуты, связи, mapping к данным
+            Один интерфейс для разных ролей: от быстрого ответа руководителю до глубокого
+            разбора метрик
           </p>
           <p class="slide-text" data-slot="about-body">
-            Экономический капитал связан с портфелем, типом риска, сценарием и
-            методологией. LLM опирается на контракты, а не на свободную генерацию цифр.
+            Satta говорит на языке бизнеса — портфели, клиенты, продукты, риски, периоды.
+            Ответы опираются на согласованные определения метрик, чтобы цифры в чате
+            совпадали с тем, что принято в компании.
           </p>
           <ul class="tag-grid" role="list">
-            <li class="tag" data-slot="entity-1">ЭК и компоненты</li>
-            <li class="tag" data-slot="entity-2">Портфель · Сделка</li>
-            <li class="tag" data-slot="entity-3">Клиент · Продукт</li>
-            <li class="tag" data-slot="entity-4">Тип риска · Фактор</li>
-            <li class="tag" data-slot="entity-5">Период · Сценарий</li>
-            <li class="tag" data-slot="entity-6">Правила · Mapping</li>
+            <li class="tag" data-slot="entity-1">Руководители</li>
+            <li class="tag" data-slot="entity-2">Финансы и риски</li>
+            <li class="tag" data-slot="entity-3">Продукт и продажи</li>
+            <li class="tag" data-slot="entity-4">Аналитики</li>
+            <li class="tag" data-slot="entity-5">Контроль качества данных</li>
+            <li class="tag" data-slot="entity-6">Единая картина по метрикам</li>
           </ul>
         </div>
       </section>
 
       <section class="slide slide-muted" id="slide-4" data-slide="4" aria-labelledby="s4-title">
         <div class="slide-inner">
-          <p class="slide-label" data-slot="s4-label">Слайд 4 · Операции</p>
-          <h2 id="s4-title" data-slot="work-title">Что делает система под капотом</h2>
+          <p class="slide-label" data-slot="s4-label">Возможности</p>
+          <h2 id="s4-title" data-slot="work-title">Что можно спросить в чате</h2>
           <ul class="card-grid card-grid--slides" role="list">
             <li class="card">
-              <h3 data-slot="work-1-title">Получить и сравнить</h3>
-              <p data-slot="work-1-text">GetMetricValue · ComparePeriods</p>
+              <h3 data-slot="work-1-title">Текущее значение и динамика</h3>
+              <p data-slot="work-1-text">
+                Сколько сейчас, как изменилось за неделю, месяц или квартал — в нужном
+                разрезе.
+              </p>
             </li>
             <li class="card">
-              <h3 data-slot="work-2-title">Объяснить и разложить</h3>
-              <p data-slot="work-2-text">ExplainChange · FindDrivers · Decompose</p>
+              <h3 data-slot="work-2-title">Почему изменилось</h3>
+              <p data-slot="work-2-text">
+                Что дало рост или падение: объём, состав портфеля, рынок, клиенты, продукты.
+              </p>
             </li>
             <li class="card">
-              <h3 data-slot="work-3-title">Проверить и предупредить</h3>
+              <h3 data-slot="work-3-title">Сравнения и сигналы</h3>
               <p data-slot="work-3-text">
-                CheckComparability · DetectAnomaly · PortfolioContribution
+                Сопоставить направления, увидеть вклад частей бизнеса, заметить необычные
+                отклонения.
               </p>
             </li>
           </ul>
@@ -165,27 +177,28 @@
 
       <section class="slide" id="slide-5" data-slide="5" aria-labelledby="s5-title">
         <div class="slide-inner">
-          <p class="slide-label" data-slot="s5-label">Слайд 5 · Вопросы</p>
-          <h2 id="s5-title" data-slot="intents-title">Типовые запросы пользователя</h2>
-          <p class="slide-kicker" data-slot="intents-kicker">LLM Intents — замените формулировки под свой бизнес</p>
+          <p class="slide-label" data-slot="s5-label">Примеры</p>
+          <h2 id="s5-title" data-slot="intents-title">Как формулируют вопросы</h2>
+          <p class="slide-kicker" data-slot="intents-kicker">
+            Живые фразы пользователей — без специальных команд
+          </p>
           <ul class="intent-grid" role="list">
-            <li data-slot="intent-1">Какой ЭК сейчас?</li>
-            <li data-slot="intent-2">Как изменился ЭК за месяц?</li>
-            <li data-slot="intent-3">Почему вырос ЭК?</li>
-            <li data-slot="intent-4">Какие факторы дали вклад?</li>
-            <li data-slot="intent-5">Сравни два портфеля</li>
-            <li data-slot="intent-6">Есть ли аномалии?</li>
+            <li data-slot="intent-1">Какой показатель сейчас по нашему портфелю?</li>
+            <li data-slot="intent-2">Чем отличается от прошлого месяца?</li>
+            <li data-slot="intent-3">Почему метрика выросла?</li>
+            <li data-slot="intent-4">Что сильнее всего повлияло на изменение?</li>
+            <li data-slot="intent-5">Сравни два направления за квартал</li>
+            <li data-slot="intent-6">Есть ли что-то подозрительное в динамике?</li>
           </ul>
         </div>
       </section>
 
       <section class="slide slide-muted" id="slide-6" data-slide="6" aria-labelledby="s6-title">
         <div class="slide-inner slide-inner--center">
-          <p class="slide-label" data-slot="s6-label">Слайд 6 · Контакт</p>
-          <h2 id="s6-title" data-slot="contact-title">Пилот и подключение слоя</h2>
+          <p class="slide-label" data-slot="s6-label">Контакт</p>
+          <h2 id="s6-title" data-slot="contact-title">Запросить демо Satta</h2>
           <p class="slide-text" data-slot="contact-lead">
-            Подставьте свои контакты — тексты слайдов правятся через <code>data-slot</code> в
-            HTML.
+            Покажем чат на ваших метриках и сценариях использования в компании.
           </p>
           <ul class="contact-list contact-list--inline" role="list">
             <li>
@@ -197,7 +210,9 @@
               <a href="https://t.me/username" data-slot="contact-telegram">@username</a>
             </li>
           </ul>
-          <p class="foot-inline" data-slot="footer-line">© Satta · семантический чат для метрик</p>
+          <p class="foot-inline" data-slot="footer-line">
+            © Satta · пользовательский чат для бизнеса и метрик
+          </p>
         </div>
       </section>
     </main>
