@@ -265,142 +265,519 @@
     return String(text).replace(re, replacement);
   }
 
-  function analyzeQuery(text) {
-    var tokens = tokenize(text);
-    var terms = [];
-    var normalized = String(text || "");
-    var clarification = null;
-    var unknownTerm = null;
-    var seen = Object.create(null);
+  var ONTOLOGY_READY = false;
 
-    tokens.forEach(function (token) {
-      var lower = token.toLowerCase();
-      if (seen[lower] || STOP.has(lower)) return;
-      seen[lower] = true;
-
-      if (KNOWN.has(lower) && !lookupExactToken(lower)) {
-        if (!global.SattaMorphology || !global.SattaMorphology.resolveForm(lower)) {
-          return;
+  function ensureOntologyIndex() {
+    if (ONTOLOGY_READY || !global.SattaOntologyIndex) return Promise.resolve();
+    return fetch("data/semantic-layer.json")
+      .then(function (res) {
+        return res.json();
+      })
+      .then(function (layer) {
+        global.SattaOntologyIndex.buildFromSemanticLayer(layer, ENTITY_MAP);
+        global.SattaOntologyIndex.augmentFromDictionary(ENTRIES, ENTITY_MAP);
+        if (global.SattaMorphology) {
+          global.SattaMorphology.buildFromDictionary(ENTRIES);
         }
-      }
+        ONTOLOGY_READY = true;
+      })
+      .catch(function () {
+        if (global.SattaOntologyIndex) {
+          global.SattaOntologyIndex.augmentFromDictionary(ENTRIES, ENTITY_MAP);
+        }
+        ONTOLOGY_READY = true;
+      });
+  }
 
-      var exactEntry = lookupExactToken(lower);
-      if (exactEntry) {
-        terms.push({
-          original: token,
-          canonical: canonicalForEntry(exactEntry),
-          match_type: KNOWN.has(lower) ? "exact" : "synonym",
+  function rebuildFromSegments(original, segments) {
+    var sorted = segments.slice().sort(function (a, b) {
+      return a.start - b.start;
+    });
+    var out = "";
+    var pos = 0;
+    sorted.forEach(function (seg) {
+      out += original.slice(pos, seg.start);
+      out += seg.normalizedText != null ? seg.normalizedText : seg.original;
+      pos = seg.end;
+    });
+    out += original.slice(pos);
+    return out.replace(/\s+/g, " ").trim();
+  }
+
+  function termRecord(seg) {
+    return {
+      original: seg.original,
+      normalized: seg.normalizedText != null ? seg.normalizedText : seg.original,
+      type: seg.type,
+      source: seg.source || "preserved",
+      match_type: seg.match_type || "none",
+      confidence: seg.confidence != null ? seg.confidence : 1,
+      entryId: seg.entryId || null,
+      entityId: seg.entityId || null,
+    };
+  }
+
+  function classifyWordToken(token, originalCase) {
+    var lower = token.toLowerCase();
+    if (STOP.has(lower)) {
+      return {
+        type: "STOPWORD",
+        normalizedText: originalCase,
+        source: "natural_language",
+        match_type: "none",
+        confidence: 1,
+      };
+    }
+
+    var exactEntry = lookupExactToken(lower);
+    if (exactEntry) {
+      return {
+        type: lower === exactEntry.preferred.toLowerCase() ? "BUSINESS_TERM" : "BUSINESS_TERM_SYNONYM",
+        normalizedText: canonicalForEntry(exactEntry),
+        source: "dictionary",
+        match_type: "exact",
+        confidence: 1,
+        entryId: exactEntry.id,
+      };
+    }
+
+    if (global.SattaMorphology) {
+      var morph = global.SattaMorphology.resolveForm(lower);
+      if (morph) {
+        var rep =
+          morph.preferred.indexOf(" ") < 0 ? morph.preferred : morph.canonical;
+        return {
+          type: "BUSINESS_TERM",
+          normalizedText: morph.canonical,
+          source: morph.entryId ? "dictionary" : "semantic_layer",
+          match_type: "morphology",
+          confidence: 0.98,
+          entryId: morph.entryId,
+        };
+      }
+    }
+
+    var typoFix = findUnambiguousTypo(lower);
+    if (typoFix) {
+      return {
+        type: "TYPO",
+        normalizedText: typoFix.canonical,
+        source: typoFix.source,
+        match_type: "typo",
+        confidence: typoFix.confidence,
+        entryId: typoFix.entryId,
+      };
+    }
+
+    var fuzzyHits = collectFuzzyMatches(lower);
+    if (fuzzyHits.length === 1 && fuzzyHits[0].confidence >= 0.55) {
+      return {
+        type: "BUSINESS_TERM_UNKNOWN",
+        normalizedText: originalCase,
+        source: "semantic_layer",
+        match_type: "fuzzy",
+        confidence: fuzzyHits[0].confidence,
+        entryId: fuzzyHits[0].entryId,
+        needsConfirmation: true,
+        suggested: fuzzyHits[0].canonical,
+      };
+    }
+    if (fuzzyHits.length > 1) {
+      return {
+        type: "BUSINESS_TERM_UNKNOWN",
+        normalizedText: originalCase,
+        source: "semantic_layer",
+        match_type: "ambiguous",
+        confidence: fuzzyHits[0].confidence,
+        needsConfirmation: true,
+        ambiguous: fuzzyHits,
+      };
+    }
+
+    if (lower === "капитал") {
+      return {
+        type: "BUSINESS_TERM_UNKNOWN",
+        normalizedText: originalCase,
+        source: "semantic_layer",
+        match_type: "ambiguous",
+        confidence: 0.5,
+        needsConfirmation: true,
+        ambiguous: collectCapitalCandidates(),
+      };
+    }
+
+    return {
+      type: lower.length >= 2 ? "UNKNOWN" : "STOPWORD",
+      normalizedText: originalCase,
+      source: "preserved",
+      match_type: "none",
+      confidence: 1,
+    };
+  }
+
+  function collectCapitalCandidates() {
+    var out = [];
+    ENTRIES.forEach(function (entry) {
+      if (entry.preferred.toLowerCase().indexOf("капитал") >= 0) {
+        out.push({
+          entryId: entry.id,
+          canonical: canonicalForEntry(entry),
+          confidence: entry.id === "economic_capital" ? 0.55 : 0.5,
+        });
+      }
+    });
+    return out;
+  }
+
+  function collectFuzzyMatches(token) {
+    var suggestion = suggestForToken(token);
+    var hits = [];
+    if (suggestion) {
+      hits.push({
+        entryId: suggestion.entryId,
+        canonical: canonicalForEntry({ preferred: suggestion.preferred }),
+        confidence: suggestion.confidence,
+      });
+    }
+    return hits;
+  }
+
+  function findUnambiguousTypo(token) {
+    if (token.length < 5) return null;
+    var best = null;
+    var second = null;
+    eachDictionaryWord(function (w, entry) {
+      if (w.length < 5) return;
+      var dist = levenshtein(token, w);
+      if (dist > 2) return;
+      var score = similarity(token, w);
+      if (score < 0.72) return;
+      var cand = {
+        word: w,
+        entryId: entry.id,
+        canonical: canonicalForEntry(entry),
+        confidence: score,
+        source: "dictionary",
+      };
+      if (!best || cand.confidence > best.confidence) {
+        second = best;
+        best = cand;
+      } else if (!second || cand.confidence > second.confidence) {
+        second = cand;
+      }
+    });
+    if (!best) return null;
+    if (second && best.confidence - second.confidence < 0.08) return null;
+    return best;
+  }
+
+  function matchExactPhrase(text) {
+    var lower = String(text || "").toLowerCase().trim();
+    if (!lower || !global.SattaOntologyIndex) return null;
+    var hit = null;
+    global.SattaOntologyIndex.getPhrases().forEach(function (item) {
+      if (item.phrase === lower) hit = item;
+    });
+    if (!hit) return null;
+    return {
+      normalizedText: hit.canonical,
+      type: "BUSINESS_TERM",
+      source: hit.source,
+      match_type: hit.source === "dictionary" ? "exact" : "semantic_layer",
+      confidence: 1,
+      entryId: hit.entryId,
+      entityId: hit.entityId,
+    };
+  }
+
+  function fuzzyPhraseFix(text) {
+    var lower = text.toLowerCase();
+    var best = null;
+    if (!global.SattaOntologyIndex) return null;
+    global.SattaOntologyIndex.getPhrases().forEach(function (item) {
+      if (item.phrase.indexOf(" ") < 0) return;
+      var score = similarity(lower, item.phrase);
+      var minScore = item.phrase.length >= 12 ? 0.74 : 0.82;
+      if (score >= minScore && (!best || score > best.score)) {
+        best = { score: score, item: item };
+      }
+    });
+    if (!best) return null;
+    return {
+      normalizedText: best.item.canonical,
+      type: "TYPO",
+      source: best.item.source,
+      match_type: "typo",
+      confidence: best.score,
+      entryId: best.item.entryId,
+      entityId: best.item.entityId,
+    };
+  }
+
+  function segmentQuery(text) {
+    var original = String(text || "");
+    var mask = new Array(original.length);
+    for (var i = 0; i < mask.length; i++) mask[i] = false;
+    var segments = [];
+
+    function pushSpan(span) {
+      segments.push(span);
+      if (global.SattaOntologyIndex) {
+        global.SattaOntologyIndex.markRange(mask, span.start, span.end);
+      } else {
+        for (var j = span.start; j < span.end; j++) mask[j] = true;
+      }
+    }
+
+    if (global.SattaDateParser) {
+      global.SattaDateParser.extractTemporal(original).forEach(function (t) {
+        pushSpan({
+          start: t.start,
+          end: t.end,
+          original: t.original,
+          normalizedText: t.normalized,
+          type: t.type,
+          source: "date_parser",
+          match_type: "exact",
           confidence: 1,
-          entryId: exactEntry.id,
         });
-        return;
-      }
+      });
+    }
 
-      if (global.SattaMorphology) {
-        var morph = global.SattaMorphology.resolveForm(lower);
-        if (morph) {
-          terms.push({
-            original: token,
-            canonical: morph.canonical,
-            match_type: "morphology",
-            confidence: 0.98,
-            entryId: morph.entryId,
-          });
-          if (morph.preferred.indexOf(" ") < 0) {
-            normalized = replaceTokenInText(normalized, token, morph.preferred);
+    if (global.SattaOntologyIndex) {
+      global.SattaOntologyIndex.findEntityValueSpans(original, mask).forEach(function (ev) {
+        pushSpan({
+          start: ev.start,
+          end: ev.end,
+          original: ev.original,
+          normalizedText: ev.normalized,
+          type: ev.type,
+          source: "semantic_layer",
+          match_type: "entity_value",
+          confidence: 1,
+          meta: ev.meta,
+        });
+      });
+
+      var phraseSpans = global.SattaOntologyIndex.findPhraseSpans(original, mask);
+      phraseSpans.sort(function (a, b) {
+        return b.end - b.start - (a.end - a.start) || a.start - b.start;
+      });
+      phraseSpans.forEach(function (ps) {
+        if (global.SattaOntologyIndex.rangeUsed(mask, ps.start, ps.end)) return;
+        pushSpan({
+          start: ps.start,
+          end: ps.end,
+          original: ps.original,
+          normalizedText: ps.phrase.canonical,
+          type: ps.phrase.source === "dictionary" ? "BUSINESS_TERM" : "BUSINESS_TERM",
+          source: ps.phrase.source,
+          match_type: ps.phrase.source === "dictionary" ? "exact" : "semantic_layer",
+          confidence: 1,
+          entryId: ps.phrase.entryId,
+          entityId: ps.phrase.entityId,
+        });
+      });
+    }
+
+    var pos = 0;
+    while (pos < original.length) {
+      if (mask[pos]) {
+        pos++;
+        continue;
+      }
+      var ch = original[pos];
+      if (/\s/.test(ch)) {
+        var ws = pos;
+        while (pos < original.length && /\s/.test(original[pos])) pos++;
+        segments.push({
+          start: ws,
+          end: pos,
+          original: original.slice(ws, pos),
+          normalizedText: original.slice(ws, pos),
+          type: "STOPWORD",
+          source: "natural_language",
+          match_type: "none",
+          confidence: 1,
+        });
+        continue;
+      }
+      var gapStart = pos;
+      while (pos < original.length && !mask[pos]) pos++;
+      var gapSlice = original.slice(gapStart, pos);
+      var gapTrim = gapSlice.trim();
+      if (!gapTrim) continue;
+      var trimOffset = gapSlice.indexOf(gapTrim);
+      var contentStart = gapStart + (trimOffset >= 0 ? trimOffset : 0);
+      var contentEnd = contentStart + gapTrim.length;
+
+      var words = gapTrim.split(/\s+/).filter(Boolean);
+      var wi = 0;
+      var cursor = contentStart;
+      while (wi < words.length) {
+        var merged = null;
+        var mergedLen = 0;
+        for (var wj = words.length; wj > wi; wj--) {
+          var phraseText = words.slice(wi, wj).join(" ");
+          var phraseTry = fuzzyPhraseFix(phraseText) || matchExactPhrase(phraseText);
+          if (phraseTry) {
+            merged = phraseTry;
+            mergedLen = wj - wi;
+            break;
           }
-          return;
         }
-      }
+        if (merged) {
+          var phraseText2 = words.slice(wi, wi + mergedLen).join(" ");
+          var pStart = original.indexOf(phraseText2, cursor);
+          if (pStart < 0) pStart = cursor;
+          var pEnd = pStart + phraseText2.length;
+          cursor = pEnd;
+          pushSpan({
+            start: pStart,
+            end: pEnd,
+            original: phraseText2,
+            normalizedText: merged.normalizedText,
+            type: merged.type || "BUSINESS_TERM",
+            source: merged.source,
+            match_type: merged.match_type,
+            confidence: merged.confidence,
+            entryId: merged.entryId,
+            entityId: merged.entityId,
+          });
+          wi += mergedLen;
+          continue;
+        }
 
-      if (isLikelyTypoOfKnown(lower)) {
+        var part = words[wi];
+        wi++;
+        var pStart = original.indexOf(part, cursor);
+        if (pStart < 0) pStart = cursor;
+        var pEnd = pStart + part.length;
+        cursor = pEnd;
+        if (/^[^a-zA-Zа-яёА-ЯЁ0-9]+$/.test(part)) {
+          segments.push({
+            start: pStart,
+            end: pEnd,
+            original: part,
+            normalizedText: part,
+            type: "STOPWORD",
+            source: "natural_language",
+            match_type: "none",
+            confidence: 1,
+          });
+          continue;
+        }
+        var cls = classifyWordToken(part, part);
+        segments.push({
+          start: pStart,
+          end: pEnd,
+          original: part,
+          normalizedText: cls.needsConfirmation ? part : cls.normalizedText,
+          type: cls.type,
+          source: cls.source,
+          match_type: cls.match_type,
+          confidence: cls.confidence,
+          entryId: cls.entryId,
+          needsConfirmation: cls.needsConfirmation,
+          suggested: cls.suggested,
+          ambiguous: cls.ambiguous,
+        });
+      }
+      continue;
+    }
+
+    return segments.sort(function (a, b) {
+      return a.start - b.start;
+    });
+  }
+
+  function analyzeQuery(text) {
+    var original = String(text || "");
+    var segments = segmentQuery(original);
+    var terms = [];
+    var unknownTerms = [];
+    var clarification = null;
+
+    segments.forEach(function (seg) {
+      if (
+        seg.type === "STOPWORD" ||
+        seg.type === "UNKNOWN" ||
+        seg.original.trim().length <= 1
+      ) {
+        if (seg.type === "UNKNOWN") unknownTerms.push(seg.original);
         return;
       }
+      terms.push(termRecord(seg));
 
-      var suggestion = suggestForToken(lower);
-      if (suggestion) {
-        terms.push({
-          original: token,
-          canonical: suggestion.preferred,
-          match_type: "fuzzy",
-          confidence: suggestion.confidence,
-          entryId: suggestion.entryId,
-        });
-        if (!clarification) {
-          var sugEntry = null;
-          for (var ei = 0; ei < ENTRIES.length; ei++) {
-            if (ENTRIES[ei].id === suggestion.entryId) {
-              sugEntry = ENTRIES[ei];
-              break;
-            }
-          }
-          var canon = canonicalForEntry(sugEntry || { preferred: suggestion.preferred });
+      if (seg.needsConfirmation && !clarification) {
+        if (seg.ambiguous && seg.ambiguous.length > 1) {
+          var opts = seg.ambiguous
+            .slice(0, 3)
+            .map(function (o) {
+              return o.canonical;
+            })
+            .join("», «");
           clarification = {
-            original_term: token,
-            suggested_term: canon,
-            question: "Под «" + token + "» вы имеете в виду «" + canon + "»?",
-            entryId: suggestion.entryId,
-            confidence: suggestion.confidence,
+            original_term: seg.original,
+            suggested_term: seg.ambiguous[0].canonical,
+            question:
+              "Термин «" +
+              seg.original +
+              "» неоднозначен. Вы имеете в виду «" +
+              opts +
+              "»?",
+            entryId: seg.ambiguous[0].entryId,
+            confidence: seg.ambiguous[0].confidence,
+          };
+        } else {
+          clarification = {
+            original_term: seg.original,
+            suggested_term: seg.suggested,
+            question:
+              "Под «" +
+              seg.original +
+              "» вы имеете в виду «" +
+              seg.suggested +
+              "»?",
+            entryId: seg.entryId,
+            confidence: seg.confidence,
           };
         }
-        return;
-      }
-
-      if (lower.length >= 4) {
-        unknownTerm = token;
-        terms.push({
-          original: token,
-          canonical: null,
-          match_type: "unknown",
-          confidence: 0,
-        });
       }
     });
 
-    normalized = normalizeQuery(text);
-    tokens.forEach(function (token) {
-      var lower = token.toLowerCase();
-      if (!global.SattaMorphology) return;
-      var morph = global.SattaMorphology.resolveForm(lower);
-      if (morph && morph.preferred.indexOf(" ") < 0) {
-        normalized = replaceTokenInText(normalized, token, morph.preferred);
+    var normalizedSegments = segments.map(function (seg) {
+      if (seg.needsConfirmation) {
+        return Object.assign({}, seg, { normalizedText: seg.original });
       }
+      return seg;
     });
-    normalized = normalizeQuery(normalized);
 
-    if (clarification) {
-      return {
-        status: "NEEDS_CONFIRMATION",
-        normalized_query: normalized,
-        terms: terms,
-        clarification: clarification,
-      };
-    }
-
-    if (unknownTerm) {
-      return {
-        status: "UNKNOWN",
-        normalized_query: normalized,
-        terms: terms,
-        clarification: {
-          question:
-            "Не удалось распознать термин «" +
-            unknownTerm +
-            "». Уточните формулировку или добавьте синоним в словарь.",
-          original_term: unknownTerm,
-        },
-      };
-    }
-
-    var hasMorph = terms.some(function (t) {
-      return t.match_type === "morphology";
+    var normalized_query = rebuildFromSegments(original, normalizedSegments);
+    var hasTypoOrMorph = terms.some(function (t) {
+      return t.match_type === "typo" || t.match_type === "morphology";
     });
-    return {
-      status: hasMorph ? "NORMALIZED" : "MATCHED",
-      normalized_query: normalized,
+
+    var result = {
+      original_query: original,
+      normalized_query: normalized_query,
       terms: terms,
-      clarification: null,
+      unknown_terms: unknownTerms,
+      clarification_required: !!clarification,
+      clarification: clarification,
+      status: clarification
+        ? "NEEDS_CONFIRMATION"
+        : hasTypoOrMorph
+          ? "NORMALIZED"
+          : "MATCHED",
     };
+    return result;
+  }
+
+  function analyzeQueryAsync(text) {
+    return ensureOntologyIndex().then(function () {
+      return analyzeQuery(text);
+    });
   }
 
   function isLikelyTypoOfKnown(token) {
@@ -447,6 +824,7 @@
   }
 
   function suggestForToken(token) {
+    if (isMorphologicalVariant(token)) return null;
     var best = null;
     ENTRIES.forEach(function (entry) {
       var pref = entry.preferred.toLowerCase();
@@ -483,25 +861,20 @@
     });
 
     if (!best || best.confidence < 0.55) return null;
-    if (isMorphologicalVariant(token) || isLikelyTypoOfKnown(token)) return null;
     return best;
   }
 
   function findUnclearTerms(text) {
-    var tokens = tokenize(text);
-    var seen = new Set();
-    var out = [];
-
-    tokens.forEach(function (token) {
-      if (seen.has(token) || isKnownToken(token)) return;
-      seen.add(token);
-      var suggestion = suggestForToken(token);
-      if (suggestion) out.push(suggestion);
-    });
-
-    return out.sort(function (a, b) {
-      return clarifyScore(b) - clarifyScore(a);
-    });
+    var analysis = analyzeQuery(text);
+    if (!analysis.clarification) return [];
+    return [
+      {
+        term: analysis.clarification.original_term,
+        preferred: analysis.clarification.suggested_term,
+        entryId: analysis.clarification.entryId,
+        confidence: analysis.clarification.confidence || 0.8,
+      },
+    ];
   }
 
   function loadDictionary(url) {
@@ -514,7 +887,12 @@
         ENTRIES_BASE = data;
         var merged = mergeEntries(data, loadCustomSynonyms());
         initFromDictionary(merged);
-        return merged;
+        ONTOLOGY_READY = false;
+        return loadEntityMap("data/entity-map.json").then(function () {
+          return ensureOntologyIndex().then(function () {
+            return merged;
+          });
+        });
       });
   }
 
@@ -541,6 +919,8 @@
     initFromDictionary: initFromDictionary,
     normalizeQuery: normalizeQuery,
     analyzeQuery: analyzeQuery,
+    analyzeQueryAsync: analyzeQueryAsync,
+    segmentQuery: segmentQuery,
     loadDictionary: loadDictionary,
     loadEntityMap: loadEntityMap,
     findUnclearTerms: findUnclearTerms,

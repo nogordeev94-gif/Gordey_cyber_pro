@@ -56,12 +56,6 @@
       }
     }
 
-    if (analysis.status === "UNKNOWN") {
-      pendingClarification = { unknown: true, term: analysis.clarification.original_term };
-      showClarify(analysis.clarification.question);
-      return;
-    }
-
     runPipeline(question, analysis);
   }
 

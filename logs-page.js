@@ -40,8 +40,10 @@
           "<li><code>" +
           esc(t.original) +
           "</code> → <strong>" +
-          esc(t.canonical || "—") +
-          "</strong> <span class='pipe-meta'>(" +
+          esc(t.normalized || t.canonical || "—") +
+          "</strong> <span class='pipe-meta'>[" +
+          esc(t.type || "—") +
+          "] (" +
           esc(t.match_type) +
           ", " +
           (t.confidence != null ? t.confidence.toFixed(2) : "—") +
