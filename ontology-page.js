@@ -32,32 +32,55 @@
   ];
 
   var layer = null;
+  var expanded = Object.create(null);
+  var selectedId = null;
 
   function esc(s) {
     return String(s || "")
       .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;");
+      .replace(/</g, "&lt;")
+      .replace(/"/g, "&quot;");
   }
 
-  function renderDetail(id) {
+  function shortLabel(id) {
+    return id
+      .replace("EconomicCapital", "EC")
+      .replace("Component", "Comp")
+      .replace("Contribution", "Contr");
+  }
+
+  function entityInfo(id) {
     var ent = layer && layer.entities && layer.entities[id];
     if (!ent) {
-      detailEl.innerHTML = "<p><strong>" + esc(id) + "</strong></p>";
-      return;
+      return { title: id, description: "", attributes: [], operations: [] };
     }
-    var rel = (layer.relationships || [])
+    return ent;
+  }
+
+  function relationsFor(id) {
+    return (layer.relationships || [])
       .filter(function (r) {
         return r.from === id || r.to === id;
       })
       .map(function (r) {
-        return r.from + " → " + r.type + " → " + r.to;
+        if (r.from === id) return r.type + " → " + r.to;
+        return r.from + " → " + r.type;
       });
+  }
+
+  function renderDetail(id) {
+    selectedId = id;
+    var ent = entityInfo(id);
+    var rel = relationsFor(id);
     detailEl.innerHTML =
-      "<h2 style='margin:0 0 8px;font-size:18px'>" +
+      "<h2 class='ontology-detail__title'>" +
       esc(ent.title || id) +
       "</h2>" +
-      "<p style='margin:0 0 12px;color:var(--muted)'>" +
-      esc(ent.description || "") +
+      "<p class='ontology-detail__id'><code>" +
+      esc(id) +
+      "</code></p>" +
+      "<p class='ontology-detail__desc'>" +
+      esc(ent.description || "Сущность семантического слоя Economic Capital.") +
       "</p>" +
       "<p><strong>Атрибуты</strong><br />" +
       esc((ent.attributes || []).join(", ") || "—") +
@@ -66,16 +89,41 @@
       esc((ent.operations || []).join(", ") || "—") +
       "</p>" +
       "<p><strong>Связи</strong><br />" +
-      esc(rel.join("; ") || "—") +
-      "</p>" +
-      "<p><strong>Бизнес-правила</strong><br />" +
-      esc((layer.business_rules || []).slice(0, 2).join("; ")) +
+      (rel.length ? rel.map(esc).join("<br />") : "—") +
       "</p>";
+  }
+
+  function cardHtml(id) {
+    var ent = entityInfo(id);
+    var rel = relationsFor(id).slice(0, 4);
+    return (
+      '<div xmlns="http://www.w3.org/1999/xhtml" class="ontology-card">' +
+      '<p class="ontology-card__title">' +
+      esc(ent.title || id) +
+      "</p>" +
+      '<p class="ontology-card__text">' +
+      esc(ent.description || "Сущность предметной области.") +
+      "</p>" +
+      (ent.attributes && ent.attributes.length
+        ? '<p class="ontology-card__meta"><strong>Атрибуты:</strong> ' +
+          esc(ent.attributes.join(", ")) +
+          "</p>"
+        : "") +
+      (ent.operations && ent.operations.length
+        ? '<p class="ontology-card__meta"><strong>Операции:</strong> ' +
+          esc(ent.operations.join(", ")) +
+          "</p>"
+        : "") +
+      (rel.length
+        ? '<p class="ontology-card__meta"><strong>Связи:</strong> ' + esc(rel.join("; ")) + "</p>"
+        : "") +
+      '<p class="ontology-card__hint">Повторный клик — свернуть</p></div>'
+    );
   }
 
   function draw() {
     var svg =
-      '<svg viewBox="0 0 700 420" role="img" aria-label="Ontology graph">';
+      '<svg viewBox="0 0 720 520" role="img" aria-label="Граф онтологии" class="ontology-svg">';
     edges.forEach(function (e) {
       var a = nodes.find(function (n) {
         return n.id === e.from;
@@ -95,26 +143,56 @@
         b.y +
         '" />';
     });
+
     nodes.forEach(function (n) {
-      var label = n.id.replace(/([A-Z])/g, " $1").trim();
+      var isExpanded = !!expanded[n.id];
+      var isSelected = selectedId === n.id;
+      var gClass =
+        "ontology-node" +
+        (isExpanded ? " ontology-node--expanded" : "") +
+        (isSelected ? " ontology-node--selected" : "");
       svg +=
-        '<g class="ontology-node" data-id="' +
+        '<g class="' +
+        gClass +
+        '" data-id="' +
         n.id +
         '" transform="translate(' +
         n.x +
         "," +
         n.y +
         ')">' +
-        '<circle r="28" />' +
-        '<text text-anchor="middle" y="4">' +
-        esc(n.id.replace("EconomicCapital", "EC").replace("Component", "Comp")) +
-        "</text></g>";
+        '<circle class="ontology-node__hit" r="' +
+        (isExpanded ? 32 : 28) +
+        '" />' +
+        '<text class="ontology-node__label" text-anchor="middle" y="4">' +
+        esc(shortLabel(n.id)) +
+        "</text>" +
+        '<text class="ontology-node__chevron" text-anchor="middle" y="22" font-size="10">' +
+        (isExpanded ? "▲" : "▼") +
+        "</text>";
+
+      if (isExpanded) {
+        svg +=
+          '<foreignObject class="ontology-node__fo" x="-110" y="38" width="220" height="200" pointer-events="all">' +
+          cardHtml(n.id) +
+          "</foreignObject>";
+      }
+      svg += "</g>";
     });
     svg += "</svg>";
     graphEl.innerHTML = svg;
+
     graphEl.querySelectorAll(".ontology-node").forEach(function (g) {
-      g.addEventListener("click", function () {
-        renderDetail(g.getAttribute("data-id"));
+      g.addEventListener("click", function (ev) {
+        if (ev.target.closest && ev.target.closest(".ontology-card")) return;
+        var id = g.getAttribute("data-id");
+        if (expanded[id]) {
+          delete expanded[id];
+        } else {
+          expanded[id] = true;
+        }
+        renderDetail(id);
+        draw();
       });
     });
   }
@@ -125,6 +203,7 @@
     })
     .then(function (data) {
       layer = data;
+      expanded.EconomicCapital = true;
       draw();
       renderDetail("EconomicCapital");
     })

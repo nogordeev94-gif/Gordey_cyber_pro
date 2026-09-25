@@ -49,8 +49,10 @@ body {
 }
 
 .top__brand {
-  font-size: 19px;
+  font-size: 15px;
   font-weight: 600;
+  line-height: 1.25;
+  max-width: 12rem;
   letter-spacing: -0.03em;
   color: var(--accent);
 }

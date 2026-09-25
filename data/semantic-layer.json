@@ -8,34 +8,59 @@
     },
     "EconomicCapitalComponent": {
       "title": "Компонент экономического капитала",
+      "description": "Составная часть экономического капитала по типу риска или сегменту.",
       "attributes": ["component_value", "risk_type"],
       "operations": ["get_value", "decompose"]
     },
     "EconomicCapitalChange": {
       "title": "Изменение экономического капитала",
+      "description": "Абсолютное и относительное изменение метрики между периодами.",
       "attributes": ["absolute_change", "relative_change"],
       "operations": ["explain_change", "analyze_dynamics"]
     },
     "Portfolio": {
       "title": "Портфель",
+      "description": "Срез расчёта: корпоративный, розничный и другие портфели банка.",
       "attributes": ["portfolio_id", "portfolio_name", "portfolio_type"],
       "operations": ["filter", "compare_portfolios"]
     },
     "RiskFactor": {
       "title": "Фактор риска",
+      "description": "Драйвер изменения экономического капитала (объём, параметры риска, структура).",
       "operations": ["find_drivers", "decompose"]
     },
     "FactorContribution": {
       "title": "Вклад фактора",
+      "description": "Количественный вклад фактора в изменение экономического капитала.",
       "operations": ["analyze_contribution", "decompose"]
     },
     "Methodology": {
       "title": "Методология",
+      "description": "Версия методики расчёта, влияющая на сопоставимость результатов.",
       "attributes": ["methodology_version"]
     },
     "Scenario": {
       "title": "Сценарий",
+      "description": "Базовый или стрессовый сценарий для расчёта метрики.",
       "attributes": ["scenario"]
+    },
+    "Client": {
+      "title": "Клиент",
+      "description": "Контрагент в составе портфеля, связанный с риском и капиталом.",
+      "attributes": ["client_id", "segment"],
+      "operations": ["filter"]
+    },
+    "Product": {
+      "title": "Продукт",
+      "description": "Банковский продукт, в рамках которого формируется экспозиция.",
+      "attributes": ["product_id", "product_type"],
+      "operations": ["filter"]
+    },
+    "RiskType": {
+      "title": "Тип риска",
+      "description": "Классификация риска для компонентов экономического капитала.",
+      "attributes": ["risk_type"],
+      "operations": ["filter", "aggregate"]
     },
     "ReportingPeriod": {
       "title": "Отчётный период",
