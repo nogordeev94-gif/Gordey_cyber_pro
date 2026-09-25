@@ -1,19 +1,12 @@
 (function (global) {
   var LAYER = null;
-  var ENTITY_MAP = null;
 
   function load(baseUrl) {
     baseUrl = baseUrl || "data/";
-    return Promise.all([
-      fetch(baseUrl + "semantic-layer.json").then(function (r) {
-        return r.json();
-      }),
-      fetch(baseUrl + "entity-map.json").then(function (r) {
-        return r.json();
-      }),
-    ]).then(function (pair) {
-      LAYER = pair[0];
-      ENTITY_MAP = pair[1];
+    return fetch(baseUrl + "semantic-layer.json").then(function (r) {
+      return r.json();
+    }).then(function (data) {
+      LAYER = data;
       return LAYER;
     });
   }
@@ -24,114 +17,22 @@
 
   function hasEc(text) {
     var t = lower(text);
-    return (
+    if (
       t.indexOf("экономический капитал") >= 0 ||
       t.indexOf("economic capital") >= 0 ||
-      t.indexOf("эк ") >= 0 ||
       t.indexOf("екап") >= 0 ||
-      t.indexOf("экап") >= 0 ||
-      /\bэк\b/.test(t)
-    );
-  }
-
-  function resolveTime(text, synonymContext) {
-    var time = detectTime(text);
-    if (time) return time;
-    if (global.SattaAttributeBridge && synonymContext && synonymContext.extracted_attributes) {
-      time = global.SattaAttributeBridge.timeFromAttributes(synonymContext.extracted_attributes);
+      t.indexOf("экап") >= 0
+    ) {
+      return true;
     }
-    return time;
-  }
-
-  function mergeDimensions(text, synonymContext) {
-    var dimensions = detectPortfolioFilters(text);
-    var attrs = synonymContext && synonymContext.extracted_attributes;
-    if (attrs && attrs.entity_values) {
-      attrs.entity_values.forEach(function (ev) {
-        if (ev.entityId === "Portfolio" || (ev.meta && ev.meta.entity === "Portfolio")) {
-          dimensions.push({
-            entity: "Portfolio",
-            attribute: "portfolio_type",
-            value: ev.normalized,
-            label: ev.original,
-            source: "synonym_agent",
-          });
-        }
-      });
-    }
-    return dimensions;
-  }
-
-  function detectPortfolioFilters(text) {
-    var t = lower(text);
-    var dims = [];
-    if (t.indexOf("корпоратив") >= 0) {
-      dims.push({
-        entity: "Portfolio",
-        attribute: "portfolio_type",
-        value: "Corporate",
-        label: "Корпоративный",
-      });
-    }
-    if (t.indexOf("рознич") >= 0) {
-      dims.push({
-        entity: "Portfolio",
-        attribute: "portfolio_type",
-        value: "Retail",
-        label: "Розничный",
-      });
-    }
-    if (t.indexOf("портфел") >= 0 && !dims.length) {
-      dims.push({
-        entity: "Portfolio",
-        attribute: "portfolio_name",
-        value: null,
-        label: "Портфель (без уточнения типа)",
-      });
-    }
-    return dims;
-  }
-
-  function detectTime(text) {
-    var t = lower(text);
-    if (t.indexOf("июн") >= 0) {
-      return { type: "period", from: "2026-06-01", to: "2026-06-30", label: "2026-06" };
-    }
-    if (t.indexOf("май") >= 0) {
-      return { type: "period", from: "2026-05-01", to: "2026-05-31", label: "2026-05" };
-    }
-    return null;
-  }
-
-  function detectOperations(text) {
-    var t = lower(text);
-    var ops = [];
-    (LAYER.intents || []).forEach(function (intent) {
-      var hit = (intent.patterns || []).some(function (p) {
-        return t.indexOf(p) >= 0;
-      });
-      if (hit) ops.push(intent.operation);
-    });
-    if (t.indexOf("почему") >= 0 || t.indexOf("вырос") >= 0 || t.indexOf("выросла") >= 0) {
-      ops = ["explain_change", "find_drivers", "decompose"];
-    }
-    if (t.indexOf("сравни") >= 0 && t.indexOf("портфел") >= 0) {
-      ops = ["compare_portfolios"];
-    }
-    if (t.indexOf("изменил") >= 0 && ops.indexOf("analyze_dynamics") < 0) {
-      ops.unshift("analyze_dynamics");
-    }
-    if (!ops.length && (t.indexOf("покаж") >= 0 || t.indexOf("какой") >= 0)) {
-      ops = ["get_value"];
-    }
-    return uniq(ops);
+    return /(?:^|[\s,.(«"'])эк(?:$|[\s,.?;:»"')])/i.test(t);
   }
 
   function uniq(arr) {
     var s = Object.create(null);
     var out = [];
-    arr.forEach(function (x) {
-      if (!s[x]) {
+    (arr || []).forEach(function (x) {
+      if (x && !s[x]) {
         s[x] = true;
         out.push(x);
       }
@@ -139,104 +40,380 @@
     return out;
   }
 
-  function buildIntentLabel(ops) {
-    if (ops.indexOf("explain_change") >= 0) return "Объяснение изменения экономического капитала";
-    if (ops.indexOf("compare_portfolios") >= 0) return "Сравнение портфелей по экономическому капиталу";
-    if (ops.indexOf("analyze_dynamics") >= 0) return "Анализ динамики экономического капитала";
-    return "Получение значения метрики";
+  function entityMeta(entityId) {
+    var ent = LAYER && LAYER.entities && LAYER.entities[entityId];
+    return ent && ent.attribute_meta ? ent.attribute_meta : {};
   }
 
-  function analyze(normalizedQuery, synonymContext) {
-    var text = String(normalizedQuery || "");
-    var t = lower(text);
-    synonymContext = synonymContext || {};
+  function entityRequiredAttributes(entityId) {
+    var meta = entityMeta(entityId);
+    var out = [];
+    Object.keys(meta).forEach(function (key) {
+      if (meta[key].required) out.push(key);
+    });
+    return out;
+  }
 
-    if (t.indexOf("капитал") >= 0 && !hasEc(text)) {
+  function operationRequiredInputs(operation) {
+    var map = (LAYER && LAYER.operation_inputs) || {};
+    return map[operation] || map.get_value || [];
+  }
+
+  function mergedRequired(entityId, operation) {
+    return uniq(entityRequiredAttributes(entityId).concat(operationRequiredInputs(operation)));
+  }
+
+  function attrQuestion(entityId, attrId) {
+    var meta = entityMeta(entityId)[attrId];
+    if (!meta) return "Уточните параметр «" + attrId + "».";
+    var q = meta.question;
+    if (meta.allowed_values && meta.allowed_values.length) {
+      var opts = meta.allowed_values.map(function (v) {
+        return "• " + (v.labels[0] || v.id);
+      });
+      return q + "\n\n" + opts.join("\n");
+    }
+    return q;
+  }
+
+  function parseEnumAttr(attrId, text, entityId) {
+    var meta = entityMeta(entityId)[attrId];
+    if (!meta || !meta.allowed_values) return null;
+    var t = lower(text).trim();
+    var hit = null;
+    meta.allowed_values.forEach(function (v) {
+      (v.labels || []).forEach(function (label) {
+        if (t.indexOf(lower(label)) >= 0) hit = v.id;
+      });
+      if (t === v.id) hit = v.id;
+    });
+    return hit;
+  }
+
+  function parseClarificationValue(attrId, text, entityId) {
+    entityId = entityId || "EconomicCapital";
+    var t = String(text || "").trim();
+    if (!t) return null;
+
+    if (attrId === "as_of_date") {
+      if (global.SattaDateParser) {
+        var dates = global.SattaDateParser.findDates(t);
+        if (dates.length) return dates[0].normalized;
+      }
+      return null;
+    }
+
+    if (attrId === "period_range" || attrId === "period") {
+      if (global.SattaDateParser) {
+        var periods = global.SattaDateParser.findPeriods(t);
+        if (periods.length) return periods[0].normalized;
+      }
+      return null;
+    }
+
+    var enumVal = parseEnumAttr(attrId, t, entityId);
+    if (enumVal) return enumVal;
+
+    return null;
+  }
+
+  function extractTimeFromSynonym(synonymContext) {
+    var out = {};
+    var attrs = synonymContext && synonymContext.extracted_attributes;
+    if (!attrs) return out;
+    if (attrs.dates && attrs.dates.length) {
+      out.as_of_date = attrs.dates[attrs.dates.length - 1].iso;
+    }
+    if (attrs.periods && attrs.periods.length) {
+      out.period_range = attrs.periods[0].normalized;
+    }
+    return out;
+  }
+
+  function extractBusinessTermsFromSynonym(synonymContext, entityId) {
+    var out = {};
+    var attrs = synonymContext && synonymContext.extracted_attributes;
+    if (!attrs || !attrs.business_terms) return out;
+    attrs.business_terms.forEach(function (term) {
+      var source = term.original || term.normalized || "";
+      if (term.entryId === "scenario" || term.entityId === "Scenario") {
+        var scen = parseEnumAttr("scenario", source, entityId);
+        if (scen) out.scenario = scen;
+      }
+      if (
+        term.entryId === "calculation_snapshot" ||
+        term.entityId === "CalculationSnapshot"
+      ) {
+        var snap = parseEnumAttr("calculation_snapshot", source, entityId);
+        if (snap) out.calculation_snapshot = snap;
+      }
+    });
+    return out;
+  }
+
+  function extractFiltersFromText(text, entityId) {
+    var filters = {};
+    var t = lower(text);
+
+    if (global.SattaDateParser) {
+      var dates = global.SattaDateParser.findDates(text);
+      if (dates.length) filters.as_of_date = dates[dates.length - 1].normalized;
+      var periods = global.SattaDateParser.findPeriods(text);
+      if (periods.length && !filters.as_of_date) filters.period_range = periods[0].normalized;
+    }
+
+    ["calculation_snapshot", "scenario"].forEach(function (attr) {
+      var v = parseEnumAttr(attr, t, entityId);
+      if (v) filters[attr] = v;
+    });
+
+    if (t.indexOf("последн") >= 0 && t.indexOf("срез") >= 0) {
+      filters.calculation_snapshot = "latest";
+    }
+    if (t.indexOf("базов") >= 0 && (t.indexOf("сценар") >= 0 || t.indexOf("сценари") >= 0)) {
+      filters.scenario = "base";
+    }
+
+    return filters;
+  }
+
+  function detectDimensions(text) {
+    var dims = [];
+    var t = lower(text);
+    (LAYER.dimension_phrases || []).forEach(function (row) {
+      var hit = (row.patterns || []).some(function (p) {
+        return new RegExp(p, "i").test(t);
+      });
+      if (hit) dims.push(row.dimension);
+    });
+    return uniq(dims);
+  }
+
+  function detectOperation(text, dimensions) {
+    var t = lower(text);
+    var ops = [];
+    (LAYER.intents || []).forEach(function (intent) {
+      var hit = (intent.patterns || []).some(function (p) {
+        return t.indexOf(p) >= 0 || new RegExp(p, "i").test(t);
+      });
+      if (hit) ops.push(intent.operation);
+    });
+    if (t.indexOf("почему") >= 0 || t.indexOf("вырос") >= 0) {
+      return "explain_change";
+    }
+    if (t.indexOf("сравни") >= 0 && t.indexOf("портфел") >= 0) {
+      return "compare_portfolios";
+    }
+    if (dimensions.length) return "aggregate";
+    if (t.indexOf("изменил") >= 0) return "analyze_dynamics";
+    return ops[0] || "get_value";
+  }
+
+  function buildChecklist(entityId, required, filters) {
+    var meta = entityMeta(entityId);
+    return required.map(function (id) {
+      var m = meta[id] || { label: id };
+      var val = filters[id];
       return {
-        status: "NEEDS_CLARIFICATION",
+        id: id,
+        label: m.label || id,
+        filled: val != null && val !== "",
+        value: val != null ? val : null,
+      };
+    });
+  }
+
+  function pickNextMissing(missing, entityId) {
+    var seq = (LAYER && LAYER.clarify_sequence) || [];
+    var meta = entityMeta(entityId);
+    var ordered = seq.filter(function (id) {
+      return missing.indexOf(id) >= 0;
+    });
+    if (ordered.length) return ordered[0];
+    missing.sort(function (a, b) {
+      return (meta[a] && meta[a].clarify_order) - (meta[b] && meta[b].clarify_order);
+    });
+    return missing[0];
+  }
+
+  function buildSemanticQuery(entity, operation, metric, dimensions, filters, time) {
+    return {
+      entity: entity,
+      operation: operation,
+      metric: metric,
+      dimensions: dimensions,
+      filters: filters,
+      time: time || {},
+    };
+  }
+
+  function analyze(normalizedQuery, synonymContext, dialogState) {
+    synonymContext = synonymContext || {};
+    dialogState = dialogState || {};
+    var text = String(normalizedQuery || "");
+    var entity = dialogState.entity || "EconomicCapital";
+    var metric = dialogState.metric || "economic_capital";
+
+    if (!hasEc(text) && !dialogState.active) {
+      if (lower(text).indexOf("капитал") >= 0) {
+        return {
+          status: "AMBIGUOUS",
+          entity: entity,
+          metric: metric,
+          clarification: {
+            required: true,
+            attribute: "metric",
+            question: "Вы имеете в виду «Экономический капитал»?",
+          },
+        };
+      }
+      return {
+        status: "UNSUPPORTED",
+        entity: null,
+        metric: metric,
         clarification: {
-          question: "Вы имеете в виду «Экономический капитал»?",
-          parameter: "metric",
-          suggested_entity: "EconomicCapital",
+          required: true,
+          attribute: null,
+          question: "Запрос не относится к Economic Capital в текущей модели Semantic Layer.",
         },
       };
     }
 
+    var dimensions = uniq((dialogState.dimensions || []).concat(detectDimensions(text)));
+    var operation = dialogState.operation || detectOperation(text, dimensions);
 
-    var operations = detectOperations(text);
-    var dimensions = mergeDimensions(text, synonymContext);
-    var time = resolveTime(text, synonymContext);
-    var primaryOp = operations[0] || "get_value";
-    var inherited =
-      global.SattaAttributeBridge && synonymContext.extracted_attributes
-        ? global.SattaAttributeBridge.summarize(synonymContext.extracted_attributes)
-        : {};
+    var filters = Object.assign(
+      {},
+      extractFiltersFromText(text, entity),
+      extractTimeFromSynonym(synonymContext),
+      extractBusinessTermsFromSynonym(synonymContext, entity),
+      dialogState.filters || {}
+    );
 
-    var semanticQuery = {
-      operation: primaryOp,
-      operation_chain: operations,
-      entity: "EconomicCapital",
-      metric: "value",
-      dimensions: dimensions,
-      time: time,
-    };
-
-    var required = [
-      "EconomicCapital.value",
-      "EconomicCapital.as_of_date",
-      "EconomicCapital.portfolio",
-      "EconomicCapital.methodology_version",
-    ];
-    if (operations.indexOf("decompose") >= 0 || operations.indexOf("find_drivers") >= 0) {
-      required = required.concat([
-        "EconomicCapitalChange.absolute_change",
-        "FactorContribution.contribution_value",
-        "RiskFactor.factor_name",
-      ]);
+    if (filters.period_range && operation === "get_value" && !filters.as_of_date) {
+      operation = "analyze_dynamics";
     }
 
-    var rules = (LAYER.business_rules || []).slice(0, 2);
-    if (operations.indexOf("compare_portfolios") >= 0) {
-      rules.push("Для сравнения портфелей используется одна версия методологии");
+    var required = mergedRequired(entity, operation);
+    var missing = required.filter(function (key) {
+      return filters[key] == null || filters[key] === "";
+    });
+
+    var time = {};
+    if (filters.as_of_date) {
+      time = { type: "as_of", from: filters.as_of_date, to: filters.as_of_date };
+    } else if (filters.period_range) {
+      var parts = String(filters.period_range).split("..");
+      time = {
+        type: "period",
+        from: parts[0],
+        to: parts[1] || parts[0],
+        label: filters.period_range,
+      };
+    }
+
+    var semanticQuery = buildSemanticQuery(entity, operation, metric, dimensions, filters, time);
+    var checklist = buildChecklist(entity, required, filters);
+    var requiredData = [
+      "EconomicCapital.value",
+      "EconomicCapital.as_of_date",
+      "EconomicCapital.calculation_snapshot",
+      "EconomicCapital.scenario",
+    ];
+
+    if (missing.length) {
+      var nextAttr = pickNextMissing(missing, entity);
+      return {
+        status: "NEEDS_CLARIFICATION",
+        entity: entity,
+        operation: operation,
+        metric: metric,
+        semantic_query: semanticQuery,
+        required_attributes: required,
+        missing_attributes: missing,
+        resolved_filters: filters,
+        clarification: {
+          required: true,
+          attribute: nextAttr,
+          question: attrQuestion(entity, nextAttr),
+        },
+        business_rules: (LAYER.business_rules || []).slice(0, 2),
+        required_data: requiredData,
+        ui: {
+          entity: entity,
+          operation: operation,
+          dimensions: dimensions,
+          required_checklist: checklist,
+          status: "NEEDS_CLARIFICATION",
+        },
+        dialog: {
+          active: true,
+          entity: entity,
+          operation: operation,
+          metric: metric,
+          dimensions: dimensions,
+          filters: filters,
+          awaiting_attribute: nextAttr,
+          normalized_query: dialogState.normalized_query || text,
+        },
+      };
     }
 
     return {
-      status: "OK",
-      intent: buildIntentLabel(operations),
+      status: "READY",
+      entity: entity,
+      operation: operation,
+      metric: metric,
       semantic_query: semanticQuery,
-      required_data: required,
-      business_rules: rules,
-      expected_result: {
-        value: operations.indexOf("get_value") >= 0 || operations.indexOf("compare_portfolios") >= 0,
-        absolute_change: operations.indexOf("analyze_dynamics") >= 0 || operations.indexOf("explain_change") >= 0,
-        relative_change: operations.indexOf("analyze_dynamics") >= 0,
-        drivers: operations.indexOf("find_drivers") >= 0,
-      },
+      required_attributes: required,
+      missing_attributes: [],
+      clarification: { required: false, attribute: null, question: null },
+      business_rules: (LAYER.business_rules || []).slice(0, 2),
+      required_data: requiredData,
       evidence_requirements: {
         source: "economic_capital_fact",
-        period: time ? time.label : "latest",
-        methodology_version: "v3.2",
-        calculation_date: time ? (time.type === "as_of" ? time.from : time.to) : "latest",
+        calculation_date: filters.as_of_date || null,
+        calculation_snapshot: filters.calculation_snapshot,
+        scenario: filters.scenario,
       },
-      inherited_attributes: inherited,
       ui: {
-        operation: primaryOp,
-        entity: "EconomicCapital",
+        entity: entity,
+        operation: operation,
         dimensions: dimensions,
-        time: time,
-        inherited_attributes: inherited,
-        required_entities: uniq(
-          ["EconomicCapital"].concat(
-            operations.indexOf("decompose") >= 0 ? ["EconomicCapitalChange", "FactorContribution", "RiskFactor"] : []
-          )
-        ),
+        required_checklist: checklist,
+        status: "READY",
       },
+      dialog: { active: false },
     };
+  }
+
+  function applyDialogAnswer(dialog, userAnswer) {
+    if (!dialog || !dialog.awaiting_attribute) {
+      return {
+        error: true,
+        message: "Нет активного уточнения параметра.",
+        dialog: dialog,
+      };
+    }
+    var val = parseClarificationValue(dialog.awaiting_attribute, userAnswer, dialog.entity);
+    if (val == null) {
+      return {
+        error: true,
+        message: "Не удалось распознать значение. Повторите ответ.",
+        dialog: dialog,
+      };
+    }
+    dialog.filters = dialog.filters || {};
+    dialog.filters[dialog.awaiting_attribute] = val;
+    dialog.last_answer = userAnswer;
+    return { error: false, dialog: dialog };
   }
 
   global.SattaSemanticLayerAgent = {
     load: load,
     analyze: analyze,
+    parseClarificationValue: parseClarificationValue,
+    applyDialogAnswer: applyDialogAnswer,
     getLayer: function () {
       return LAYER;
     },

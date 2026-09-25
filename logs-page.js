@@ -1,5 +1,6 @@
 (function () {
   var STORAGE_KEY = "satta:pipeline-logs";
+  var VIEW_LOG_TS_KEY = "satta:view-log-ts";
   var root = document.getElementById("pipeline-root");
   var empty = document.getElementById("log-empty");
   var history = document.getElementById("log-history");
@@ -35,6 +36,81 @@
       bodyHtml +
       "</section>"
     );
+  }
+
+  function renderChecklist(sem) {
+    var ui = (sem && sem.ui) || {};
+    var list = ui.required_checklist || [];
+    if (!list.length) return "";
+    var items = list
+      .map(function (row) {
+        var mark = row.filled ? "✓" : "✗";
+        var val =
+          row.filled && row.value != null
+            ? " = " + row.value
+            : "";
+        return (
+          "<li class='checklist-item checklist-item--" +
+          (row.filled ? "ok" : "miss") +
+          "'>" +
+          mark +
+          " " +
+          esc(row.label || row.id) +
+          esc(val) +
+          "</li>"
+        );
+      })
+      .join("");
+    return (
+      "<p class='pipe-meta'><strong>Required attributes</strong></p>" +
+      "<ul class='pipe-list checklist'>" +
+      items +
+      "</ul>"
+    );
+  }
+
+  function renderSemanticStep(sem, statusLabel) {
+    var ui = (sem && sem.ui) || {};
+    var dims = ui.dimensions || (sem.semantic_query && sem.semantic_query.dimensions) || [];
+    var dimText = dims
+      .map(function (d) {
+        return typeof d === "string" ? d : d.label || d.value || d.attribute;
+      })
+      .join(", ");
+    var body =
+      "<div class='semantic-panel'>" +
+      "<p class='semantic-panel__badge'>" +
+      esc(statusLabel || ui.status || sem.status) +
+      "</p>" +
+      "<dl class='semantic-dl'>" +
+      "<dt>Entity</dt><dd><code>" +
+      esc(sem.entity || ui.entity) +
+      "</code></dd>" +
+      "<dt>Operation</dt><dd><code>" +
+      esc(sem.operation || ui.operation) +
+      "</code></dd>" +
+      "<dt>Dimensions</dt><dd>" +
+      esc(dimText || "—") +
+      "</dd>" +
+      "</dl>" +
+      renderChecklist(sem);
+    if (sem.clarification && sem.clarification.question) {
+      body +=
+        "<p class='pipe-meta'><strong>Question</strong></p>" +
+        "<p class='pipe-text'>" +
+        esc(sem.clarification.question) +
+        "</p>";
+    }
+    if (sem.status === "READY" && sem.semantic_query) {
+      body +=
+        "<p class='pipe-meta'><strong>Semantic Query</strong></p>" +
+        "<pre class='pipe-json'>" +
+        preJson(sem.semantic_query) +
+        "</pre>" +
+        "<p class='pipe-meta'>→ SQL AGENT</p>";
+    }
+    body += "</div>";
+    return body;
   }
 
   function renderRecord(record) {
@@ -79,67 +155,20 @@
         attrBox("Важные атрибуты (Synonym)", syn.extracted_attributes)
     );
 
-    if (record.status === "NEEDS_CLARIFICATION" && record.semantic) {
-      html += step(
-        "STEP 3 — Semantic Layer Agent",
-        "<div class='semantic-panel'>" +
-          "<p class='semantic-panel__badge'>NEEDS CLARIFICATION</p>" +
-          "<p class='pipe-text'>" +
-          esc(record.semantic.clarification.question) +
-          "</p></div>"
-      );
+    var sem = record.semantic || {};
+    if (record.status === "NEEDS_CLARIFICATION" && sem.status) {
+      html += step("STEP 3 — Semantic Layer Agent", renderSemanticStep(sem, "NEEDS_CLARIFICATION"));
       return html;
     }
 
-    var sem = record.semantic || {};
-    var ui = sem.ui || {};
-    html += step(
-      "STEP 3 — Semantic Layer Agent",
-      "<div class='semantic-panel'>" +
-        "<p class='semantic-panel__badge'>SEMANTIC LAYER</p>" +
-        "<dl class='semantic-dl'>" +
-        "<dt>Intent</dt><dd>" +
-        esc(sem.intent) +
-        "</dd>" +
-        "<dt>Operation</dt><dd><code>" +
-        esc(ui.operation || (sem.semantic_query && sem.semantic_query.operation)) +
-        "</code></dd>" +
-        "<dt>Entity</dt><dd>" +
-        esc(ui.entity) +
-        "</dd>" +
-        "<dt>Dimensions</dt><dd>" +
-        esc(
-          (ui.dimensions || [])
-            .map(function (d) {
-              return d.label || d.value || d.attribute;
-            })
-            .join(", ") || "—"
-        ) +
-        "</dd>" +
-        "<dt>Period / Date</dt><dd>" +
-        esc(
-          (ui.time && (ui.time.label || ui.time.from)) ||
-            (sem.semantic_query && sem.semantic_query.time && sem.semantic_query.time.from) ||
-            "—"
-        ) +
-        "</dd>" +
-        attrBox("Унаследовано от Synonym", ui.inherited_attributes || sem.inherited_attributes) +
-        "<dt>Required entities</dt><dd>" +
-        esc((ui.required_entities || []).join(", ")) +
-        "</dd>" +
-        "<dt>Business rules</dt><dd>" +
-        esc((sem.business_rules || []).join("; ")) +
-        "</dd>" +
-        "</dl></div>"
-    );
+    html += step("STEP 3 — Semantic Layer Agent", renderSemanticStep(sem, "SEMANTIC LAYER"));
 
-    html += step(
-      "STEP 4 — Semantic Query",
-      "<pre class='pipe-json'>" + preJson(sem.semantic_query) + "</pre>" +
-        "<p class='pipe-meta'>Evidence</p><pre class='pipe-json'>" +
-        preJson(sem.evidence_requirements) +
-        "</pre>"
-    );
+    if (sem.status === "READY") {
+      html += step(
+        "STEP 4 — Evidence",
+        "<pre class='pipe-json'>" + preJson(sem.evidence_requirements) + "</pre>"
+      );
+    }
 
     var sql = record.sql || {};
     var trace = record.attribute_trace || {};
@@ -178,6 +207,18 @@
   if (!logs.length) return;
 
   var latest = logs[logs.length - 1];
+  try {
+    var viewTs = sessionStorage.getItem(VIEW_LOG_TS_KEY);
+    if (viewTs) {
+      var matched = logs.filter(function (item) {
+        return String(item.ts) === viewTs;
+      });
+      if (matched.length) latest = matched[matched.length - 1];
+      sessionStorage.removeItem(VIEW_LOG_TS_KEY);
+    }
+  } catch (e) {
+    /* ignore */
+  }
   root.innerHTML = renderRecord(latest);
   root.hidden = false;
   empty.hidden = true;

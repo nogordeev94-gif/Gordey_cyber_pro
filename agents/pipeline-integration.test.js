@@ -31,10 +31,14 @@ var storage = {
   setItem: function (k, v) {
     this._data[k] = v;
   },
+  removeItem: function (k) {
+    delete this._data[k];
+  },
 };
 ctx.global.localStorage = storage;
 ctx.window.localStorage = storage;
 ctx.localStorage = storage;
+vm.runInContext("var localStorage = global.localStorage;", ctx);
 [
   "morphology.js",
   "date-parser.js",
@@ -57,7 +61,8 @@ function assert(cond, msg) {
 }
 
 Agent.loadDictionary("data/synonyms.json").then(function () {
-  var q = "какой екап за дату 31.12.25?";
+  var q =
+    "какой екап за дату 31.12.25, последний срез, базовый сценарий?";
   var syn = Agent.analyzeQuery(q);
   assert(syn.extracted_attributes.dates[0].iso === "2025-12-31", "synonym parses date");
 
@@ -66,9 +71,13 @@ Agent.loadDictionary("data/synonyms.json").then(function () {
   syn.normalized_query = syn.normalized_query.replace(/екап/gi, "Экономический капитал");
 
   return Pipeline.runAfterSynonym(q, syn).then(function (record) {
-    var time = record.semantic.semantic_query.time;
-    assert(time && time.from === "2025-12-31", "semantic time from synonym");
+    assert(record.status === "COMPLETE", "pipeline completes when semantic READY");
+    assert(record.semantic.status === "READY", "semantic READY");
+    var f = record.semantic.semantic_query.filters;
+    assert(f.as_of_date === "2025-12-31", "semantic filter date");
+    assert(f.scenario === "base", "semantic filter scenario");
     assert(record.sql.sql.indexOf("2025-12-31") >= 0, "sql filters date");
+    assert(record.sql.sql.indexOf("Base") >= 0, "sql filters scenario");
     assert(record.final_answer.indexOf("2025-12-31") >= 0, "answer uses date");
     assert(record.final_answer.indexOf("2026-06-30") < 0, "answer not default june");
     console.log("SQL snippet:", record.sql.sql.split("\n").slice(-3).join(" "));

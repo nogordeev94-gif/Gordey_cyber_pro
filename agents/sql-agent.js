@@ -51,7 +51,12 @@
       "FROM " + table + " f",
     ];
     var joins = [];
-    var where = ["f.scenario = 'Base'"];
+    var where = [];
+    var f = sq.filters || {};
+    var scenarioMap = { base: "Base", stress: "Stress", alternative: "Alternative" };
+    if (f.scenario) {
+      where.push("f.scenario = '" + (scenarioMap[f.scenario] || f.scenario) + "'");
+    }
 
     var corp = false;
     var retail = false;
@@ -71,13 +76,16 @@
       where.push("p.portfolio_type IN ('Corporate', 'Retail')");
     }
 
-    if (sq.time) {
+    if (f.as_of_date) {
+      where.push("f.date = '" + f.as_of_date + "'");
+    } else if (sq.time && sq.time.from) {
       if (sq.time.type === "as_of" || sq.time.from === sq.time.to) {
         where.push("f.date = '" + sq.time.from + "'");
       } else {
         where.push("f.date BETWEEN '" + sq.time.from + "' AND '" + sq.time.to + "'");
       }
     }
+    if (!where.length) where.push("1=1");
 
     if (joins.length) lines.push(joins.join("\n"));
     lines.push("WHERE " + where.join("\n  AND "));
@@ -88,8 +96,8 @@
 
   function buildAppliedFilters(semanticResult) {
     var sq = semanticResult.semantic_query || {};
-    var filters = { scenario: "Base" };
-    if (sq.time) {
+    var filters = Object.assign({}, sq.filters || {});
+    if (sq.time && sq.time.from && !filters.as_of_date) {
       filters.date =
         sq.time.type === "as_of" || sq.time.from === sq.time.to
           ? sq.time.from
@@ -128,7 +136,12 @@
       });
     }
 
-    if (sq.time) {
+    var f = sq.filters || {};
+    if (f.as_of_date) {
+      rows = rows.filter(function (r) {
+        return r.date === f.as_of_date;
+      });
+    } else if (sq.time && sq.time.from) {
       if (sq.time.type === "as_of" || sq.time.from === sq.time.to) {
         rows = rows.filter(function (r) {
           return r.date === sq.time.from;
@@ -138,6 +151,13 @@
           return r.date >= sq.time.from && r.date <= sq.time.to;
         });
       }
+    }
+    if (f.scenario) {
+      var scenarioMap = { base: "Base", stress: "Stress", alternative: "Alternative" };
+      var scen = scenarioMap[f.scenario] || f.scenario;
+      rows = rows.filter(function (r) {
+        return r.scenario === scen;
+      });
     }
 
     var result = {
@@ -316,6 +336,17 @@
   }
 
   function run(semanticResult) {
+    if (!semanticResult || semanticResult.status !== "READY") {
+      return {
+        sql: "",
+        execution: { rows: [], aggregates: {}, drivers: [], applied_filters: {} },
+        final_answer: "",
+        applied_filters: {},
+        mapping_version: MAPPING ? MAPPING.version : null,
+        skipped: true,
+        reason: "semantic_not_ready",
+      };
+    }
     var sql = buildSql(semanticResult);
     var execution = execute(semanticResult);
     var answer = buildFinalAnswer(semanticResult, execution);

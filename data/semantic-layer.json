@@ -3,7 +3,43 @@
     "EconomicCapital": {
       "title": "Экономический капитал",
       "description": "Ключевая метрика риска и капитала по методологии банка.",
-      "attributes": ["value", "as_of_date", "portfolio", "methodology_version", "scenario"],
+      "attributes": ["value", "as_of_date", "calculation_snapshot", "scenario", "portfolio", "methodology_version"],
+      "attribute_meta": {
+        "as_of_date": {
+          "required": true,
+          "label": "Дата",
+          "clarify_order": 1,
+          "question": "За какую дату вам нужен ЭК?"
+        },
+        "calculation_snapshot": {
+          "required": true,
+          "label": "Срез расчёта",
+          "clarify_order": 2,
+          "question": "Какой срез расчёта использовать?",
+          "allowed_values": [
+            { "id": "latest", "labels": ["последний", "последний срез", "latest"] },
+            { "id": "preliminary", "labels": ["предварительный", "preliminary"] },
+            { "id": "official", "labels": ["официальный", "official"] }
+          ]
+        },
+        "scenario": {
+          "required": true,
+          "label": "Сценарий",
+          "clarify_order": 3,
+          "question": "Какой сценарий использовать?",
+          "allowed_values": [
+            { "id": "base", "labels": ["базовый", "базовый сценарий", "base"] },
+            { "id": "stress", "labels": ["стрессовый", "стресс", "stress"] },
+            { "id": "alternative", "labels": ["альтернативный", "alternative"] }
+          ]
+        },
+        "period_range": {
+          "required": false,
+          "label": "Период",
+          "clarify_order": 1,
+          "question": "За какой период нужен анализ?"
+        }
+      },
       "operations": ["get_value", "compare", "aggregate", "analyze_dynamics", "explain_change"]
     },
     "EconomicCapitalComponent": {
@@ -80,6 +116,25 @@
     "Для сравнения портфелей используется одна версия методологии",
     "Декомпозиция изменения доступна только при наличии факторного витринного слоя"
   ],
+  "operation_inputs": {
+    "get_value": ["as_of_date", "calculation_snapshot", "scenario"],
+    "aggregate": ["as_of_date", "calculation_snapshot", "scenario"],
+    "filter": ["as_of_date", "calculation_snapshot", "scenario"],
+    "compare": ["period_1", "period_2", "calculation_snapshot", "scenario"],
+    "analyze_dynamics": ["period_range", "calculation_snapshot", "scenario"],
+    "explain_change": ["period_1", "period_2", "calculation_snapshot", "scenario"],
+    "compare_portfolios": ["portfolio_1", "portfolio_2", "as_of_date", "calculation_snapshot", "scenario"],
+    "find_drivers": ["period_1", "period_2", "calculation_snapshot", "scenario"],
+    "decompose": ["period_1", "period_2", "calculation_snapshot", "scenario"]
+  },
+  "dimension_phrases": [
+    { "patterns": ["по продукт", "по продуктам", "структур.*продукт"], "dimension": "product", "entity": "Product" },
+    { "patterns": ["по сегмент", "по сегментам"], "dimension": "client_segment", "entity": "ClientSegment" },
+    { "patterns": ["по гбл", "по gbl"], "dimension": "gbl", "entity": "ClientSegment" },
+    { "patterns": ["по портфел", "по портфелям"], "dimension": "portfolio", "entity": "Portfolio" },
+    { "patterns": ["по типам риска", "по типу риска"], "dimension": "risk_type", "entity": "RiskType" }
+  ],
+  "clarify_sequence": ["as_of_date", "calculation_snapshot", "scenario"],
   "operations": [
     "get_value",
     "compare",
@@ -95,6 +150,11 @@
     "detect_anomaly"
   ],
   "intents": [
+    {
+      "id": "aggregate",
+      "patterns": ["по продукт", "по сегмент", "по гбл", "по портфел", "структур", "в разрезе"],
+      "operation": "aggregate"
+    },
     {
       "id": "get_value",
       "patterns": ["покажи", "показать", "какой", "сколько", "значение", "get value"],
