@@ -35,7 +35,7 @@
           placeholder="Например: какой ЭК по портфелю «Корпоративный» на сегодня?"
           required
         ></textarea>
-        <button class="ask__btn" type="submit">Спросить</button>
+        <button class="ask__btn" type="submit" id="ask-submit">Спросить</button>
       </form>
 
       <p class="page-links">
@@ -47,7 +47,11 @@
       <div class="clarify" id="clarify" hidden aria-live="polite">
         <p class="clarify__label">Уточнение</p>
         <p class="clarify__text" id="clarify-text"></p>
-        <div class="clarify__actions">
+        <p class="clarify__hint-mode" id="clarify-hint-mode" hidden></p>
+        <button type="button" class="clarify__reset" id="clarify-reset" hidden>
+          Отменить уточнение и задать новый вопрос
+        </button>
+        <div class="clarify__actions" id="clarify-confirm-actions">
           <button class="ask__btn clarify__btn" type="button" id="clarify-yes">Да, верно</button>
           <button class="ask__btn clarify__btn clarify__btn--ghost" type="button" id="clarify-no">
             Нет

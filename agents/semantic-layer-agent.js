@@ -66,14 +66,34 @@
   function attrQuestion(entityId, attrId) {
     var meta = entityMeta(entityId)[attrId];
     if (!meta) return "Уточните параметр «" + attrId + "».";
-    var q = meta.question;
+    return meta.question || "Уточните параметр «" + attrId + "».";
+  }
+
+  function buildClarificationInput(entityId, attrId) {
+    var meta = entityMeta(entityId)[attrId] || {};
+    var raw = meta.clarification_input || {};
+    var input = {
+      type: raw.type || (attrId === "as_of_date" ? "date" : "text"),
+      selection: raw.selection || "single",
+      allow_custom: raw.allow_custom !== false,
+    };
     if (meta.allowed_values && meta.allowed_values.length) {
-      var opts = meta.allowed_values.map(function (v) {
-        return "• " + (v.labels[0] || v.id);
+      input.type = "option";
+      input.allow_custom = false;
+      input.options = meta.allowed_values.map(function (v) {
+        return { value: v.id, label: (v.labels && v.labels[0]) || v.id };
       });
-      return q + "\n\n" + opts.join("\n");
     }
-    return q;
+    return input;
+  }
+
+  function buildClarification(entityId, attrId) {
+    return {
+      required: true,
+      attribute: attrId,
+      question: attrQuestion(entityId, attrId),
+      input: buildClarificationInput(entityId, attrId),
+    };
   }
 
   function parseEnumAttr(attrId, text, entityId) {
@@ -332,11 +352,7 @@
         required_attributes: required,
         missing_attributes: missing,
         resolved_filters: filters,
-        clarification: {
-          required: true,
-          attribute: nextAttr,
-          question: attrQuestion(entity, nextAttr),
-        },
+        clarification: buildClarification(entity, nextAttr),
         business_rules: (LAYER.business_rules || []).slice(0, 2),
         required_data: requiredData,
         ui: {

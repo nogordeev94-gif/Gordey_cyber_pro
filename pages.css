@@ -232,6 +232,27 @@
   margin-top: 14px;
 }
 
+.clarify--semantic .clarify__actions {
+  display: none !important;
+}
+
+.clarify--semantic .clarify__hint-mode {
+  margin: 10px 0 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.clarify__reset {
+  margin-top: 12px;
+  font-size: 13px;
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--accent);
+  cursor: pointer;
+  text-decoration: underline;
+}
+
 .clarify__btn {
   min-width: 120px;
 }
